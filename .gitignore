@@ -41,3 +41,7 @@ npm-debug.log*
 # Agent task prompts (not project files)
 OPENCODE_PROMPT.md
 LAUNCH.md
+# Real environment files. `.env.example` is documentation and must stay tracked;
+# the Vercel CLI added a bare `.env*` here, which would have hidden it.
+.env*
+!.env.example
