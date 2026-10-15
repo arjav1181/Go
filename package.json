@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test": "tsc -p tsconfig.test.json && node --test .test-dist/tests"
+    "test": "tsc -p tsconfig.test.json && node --test .test-dist/tests/*.test.js"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
