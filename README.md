@@ -2,6 +2,8 @@
 
 Short links on `go.arjav.is-cool.dev` with privacy-conscious aggregate analytics.
 
+MIT licensed. See [`LICENSE`](./LICENSE).
+
 ## Stack
 Next.js 16 (App Router), TypeScript, Tailwind CSS, Supabase Auth/Postgres.
 
