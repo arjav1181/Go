@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel superseded runs on the same ref: nobody waits on a stale commit.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Lint, typecheck, test, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      # `npm ci` rather than `npm install`: it installs exactly the committed
+      # lockfile and fails if package.json and the lockfile disagree. This is
+      # also what proves a fresh clone can actually be built.
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Audit production dependencies
+        # Only production dependencies. The dev toolchain has a lint-time
+        # advisory with no upstream fix; see THREAT-MODEL.md.
+        run: npm audit --omit=dev --audit-level=high
+        continue-on-error: false
+
+  security:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      # Blocks the obvious ways a service-role key or Supabase credential gets
+      # committed. Complements, and does not replace, Vercel's own protection.
+      - name: Reject committed secrets
+        env:
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+          failed=0
+          check() {
+            local name="$1" value="$2"
+            [ -z "$value" ] && { echo "  skip (not configured): $name"; return 0; }
+            if git grep -I -F -q -- "$value" -- . \
+                 && ! git grep -I -F -q -- "$value" -- '.github/workflows/*' ; then
+              echo "::error::Secret $name appears in committed files."
+              failed=1
+            else
+              echo "  ok: $name not committed"
+            fi
+          }
+          check SUPABASE_SERVICE_ROLE_KEY "$SUPABASE_SERVICE_ROLE_KEY"
+          check SUPABASE_ANON_KEY "$SUPABASE_ANON_KEY"
+          check CRON_SECRET "$CRON_SECRET"
+          check VERCEL_TOKEN "$VERCEL_TOKEN"
+          exit "$failed"
