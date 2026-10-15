@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build output
+.next/
+out/
+build/
+dist/
+.test-dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# Environment / secrets — never commit
+.env
+.env.local
+.env.*.local
+.env.production
+.vercel
+*.pem
+*.key
+
+# Test / coverage artifacts
+coverage/
+.nyc_output/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+
+# Logs
+*.log
+npm-debug.log*
+
+# Vercel CLI local state
+.vercel/
