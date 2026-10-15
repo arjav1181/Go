@@ -28,11 +28,20 @@ jobs:
           node-version: 22
           cache: npm
 
+      # The npm bundled with some Node 22.x patch releases aborts mid-install
+      # with "Exit handler never called!", which failed the first run of this
+      # workflow. Pinning npm explicitly makes the install deterministic
+      # instead of dependent on the runner image.
+      - name: Pin npm
+        run: npm install -g npm@12
+
       # `npm ci` rather than `npm install`: it installs exactly the committed
       # lockfile and fails if package.json and the lockfile disagree. This is
       # also what proves a fresh clone can actually be built.
+      # `--no-audit --no-fund` keeps the advisory fetch out of the install path;
+      # auditing is a separate, explicit step below.
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --no-audit --no-fund
 
       - name: Lint
         run: npm run lint
