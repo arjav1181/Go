@@ -37,3 +37,7 @@ npm-debug.log*
 
 # Vercel CLI local state
 .vercel/
+
+# Agent task prompts (not project files)
+OPENCODE_PROMPT.md
+LAUNCH.md
