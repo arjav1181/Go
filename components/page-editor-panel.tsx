@@ -85,7 +85,7 @@ export function PageEditorPanel(props: PageEditorPanelProps) {
           <span className={props.isPublished ? 'page-editor-live' : 'page-editor-draft'}>
             {props.isPublished ? 'Live' : 'Draft'}
           </span>
-          {unpublished ? <span className="page-editor-badge">unpublished changes</span> : null}
+          {unpublished ? <span className="badge">unpublished changes</span> : null}
         </div>
       </div>
 
@@ -155,12 +155,12 @@ export function PageEditorPanel(props: PageEditorPanelProps) {
           </button>
         ) : null}
 
-        {dirty ? <span className="page-editor-dirty">unsaved changes</span> : null}
+        {dirty ? <span className="badge badge-warning">unsaved changes</span> : null}
       </div>
 
-      {result?.error ? <p className="page-editor-error">{result.error}</p> : null}
+      {result?.error ? <p className="callout callout-danger">{result.error}</p> : null}
       {result?.warnings?.length ? (
-        <ul className="page-editor-warnings">
+        <ul className="callout callout-warning">
           {result.warnings.map((w) => (
             <li key={w}>{w}</li>
           ))}

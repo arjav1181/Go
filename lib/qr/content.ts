@@ -129,3 +129,28 @@ export async function loadAndResolve(
 
   return resolved.ok ? { ...resolved, customizations } : resolved;
 }
+/**
+ * Expiry vocabulary for the QR list (spec section 16: "expired, expiring, no
+ * expiration date").
+ *
+ * Lives here rather than inline in the page component for two reasons: the
+ * labels belong with the rest of the QR domain rules, and computing them in the
+ * component means calling `Date.now()` during render, which the React compiler
+ * rules correctly flag as impure.
+ */
+export type QrExpiration = 'active' | 'expired' | 'expiring' | 'none' | 'archived';
+
+/** Within this window a code is shown as "expiring" rather than merely active. */
+export const EXPIRING_SOON_DAYS = 7;
+
+export function qrExpiration(
+  row: { expires_at: string | null; archived: boolean },
+  now: number
+): QrExpiration {
+  if (row.archived) return 'archived';
+  if (!row.expires_at) return 'none';
+  const at = new Date(row.expires_at).getTime();
+  if (at <= now) return 'expired';
+  if (at - now <= EXPIRING_SOON_DAYS * 86_400_000) return 'expiring';
+  return 'active';
+}

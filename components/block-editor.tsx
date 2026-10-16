@@ -93,7 +93,7 @@ export function BlockEditor({ blocks, onChange, stats = {} }: BlockEditorProps) 
   }
 
   return (
-    <div className="block-editor">
+    <div className="block-editor card card-pad">
       <div className="block-editor-add">
         <span className="block-editor-add-label">Add block</span>
         <div className="block-editor-add-buttons">
@@ -144,12 +144,12 @@ export function BlockEditor({ blocks, onChange, stats = {} }: BlockEditorProps) 
                 ⠿
               </span>
               <span className="block-editor-type">{block.type.replace('_', ' ')}</span>
-              {block.pinned ? <span className="block-editor-badge">pinned</span> : null}
+              {block.pinned ? <span className="badge">pinned</span> : null}
               {!isBlockVisible(block) ? (
-                <span className="block-editor-badge is-warn">hidden</span>
+                <span className="badge is-warn">hidden</span>
               ) : null}
               {stats[block.blockId] ? (
-                <span className="block-editor-badge">{stats[block.blockId]} clicks</span>
+                <span className="badge">{stats[block.blockId]} clicks</span>
               ) : null}
 
               <span className="block-editor-actions">
@@ -189,7 +189,7 @@ export function BlockEditor({ blocks, onChange, stats = {} }: BlockEditorProps) 
       </ol>
 
       {!ordered.length ? (
-        <p className="block-editor-empty">No blocks yet. Add one above, or start from a template.</p>
+        <p className="empty-state">No blocks yet. Add one above, or start from a template.</p>
       ) : null}
     </div>
   );
@@ -209,7 +209,7 @@ function BlockFields({
       {block.type === 'link' && (
         <>
           <Field label="Label">
-            <input value={block.label} onChange={(e) => onChange({ label: e.target.value } as Partial<PageBlock>)} />
+            <input className="input" value={block.label} onChange={(e) => onChange({ label: e.target.value } as Partial<PageBlock>)} />
           </Field>
           <Field label="Description">
             <input
@@ -231,6 +231,7 @@ function BlockFields({
         <>
           <Field label="Style">
             <select
+              className="select"
               value={block.style}
               onChange={(e) => onChange({ style: e.target.value as 'body' | 'heading' } as Partial<PageBlock>)}
             >
@@ -240,6 +241,7 @@ function BlockFields({
           </Field>
           <Field label="Text">
             <textarea
+              className="textarea"
               rows={3}
               value={block.text}
               onChange={(e) => onChange({ text: e.target.value } as Partial<PageBlock>)}
@@ -251,10 +253,10 @@ function BlockFields({
       {block.type === 'image' && (
         <>
           <Field label="Image URL">
-            <input value={block.url} onChange={(e) => onChange({ url: e.target.value } as Partial<PageBlock>)} />
+            <input className="input" value={block.url} onChange={(e) => onChange({ url: e.target.value } as Partial<PageBlock>)} />
           </Field>
           <Field label="Alt text">
-            <input value={block.alt} onChange={(e) => onChange({ alt: e.target.value } as Partial<PageBlock>)} />
+            <input className="input" value={block.alt} onChange={(e) => onChange({ alt: e.target.value } as Partial<PageBlock>)} />
           </Field>
           <Field label="Optional outbound link">
             <input value={block.href ?? ''} onChange={(e) => onChange({ href: e.target.value || undefined } as Partial<PageBlock>)} />
@@ -265,6 +267,7 @@ function BlockFields({
       {(block.type === 'image_grid' || block.type === 'image_carousel') && (
         <Field label="Images (one URL per line, optionally `url | alt text | link`)">
           <textarea
+            className="textarea"
             rows={4}
             defaultValue={block.images
               .map((i) => [i.url, i.alt, i.href ?? ''].filter(Boolean).join(' | '))
@@ -276,7 +279,7 @@ function BlockFields({
 
       {block.type === 'youtube' && (
         <Field label="YouTube URL or id">
-          <input value={block.videoId} onChange={(e) => onChange({ videoId: e.target.value } as Partial<PageBlock>)} />
+          <input className="input" value={block.videoId} onChange={(e) => onChange({ videoId: e.target.value } as Partial<PageBlock>)} />
         </Field>
       )}
 
@@ -309,6 +312,7 @@ function BlockFields({
       {block.type === 'social' && (
         <Field label="Networks (one `network url` per line)">
           <textarea
+            className="textarea"
             rows={3}
             defaultValue={block.networks.map((n) => `${n.network} ${n.href}`).join('\n')}
             onBlur={(e) => onChange({ networks: parseSocialLines(e.target.value) } as Partial<PageBlock>)}
@@ -332,6 +336,7 @@ function ScheduleField({
     <div className="block-editor-schedule">
       <Field label="Appears from">
         <input
+          className="input"
           type="datetime-local"
           value={toLocalInput(block.schedule?.from)}
           onChange={(e) => {
@@ -342,6 +347,7 @@ function ScheduleField({
       </Field>
       <Field label="Until">
         <input
+          className="input"
           type="datetime-local"
           value={toLocalInput(block.schedule?.until)}
           onChange={(e) => {
@@ -356,7 +362,7 @@ function ScheduleField({
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="block-field">
+    <label className="label">
       <span>{label}</span>
       {children}
     </label>

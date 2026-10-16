@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { CreateLinkShortcut } from '@/components/create-link-shortcut';
 
 const CONTACT_EMAIL =
@@ -15,11 +16,32 @@ export default function AppShell({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  /**
+   * The nav is hidden below `sm`, so without this panel the owner would have no
+   * navigation at all on a phone once it grew past a couple of items.
+   *
+   * Closing is done in each link's onClick rather than by watching pathname in
+   * an effect: an effect that calls setState on every navigation re-renders the
+   * whole shell on every page change, and the click already knows when the
+   * navigation happened.
+   */
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [menuOpen]);
 
   const nav = email
     ? [
         { href: '/dashboard', label: 'Links' },
         { href: '/links/new', label: 'New' },
+        { href: '/qr', label: 'QR Codes' },
+        { href: '/campaigns', label: 'Campaigns' },
         { href: '/tags', label: 'Organize' },
         { href: '/settings', label: 'Settings' }
       ]
@@ -71,10 +93,21 @@ export default function AppShell({
             {email ? (
               <>
                 <CreateLinkShortcut />
-                <Link href="/links/new" className="btn btn-primary hidden sm:inline-flex">
-                  New link
-                </Link>
-                <form action="/auth/signout" method="post">
+                <button
+              type="button"
+              className="btn btn-ghost btn-icon sm:hidden"
+              aria-expanded={menuOpen}
+              aria-controls="mobile-nav"
+              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              onClick={() => setMenuOpen((v) => !v)}
+            >
+              <span aria-hidden>{menuOpen ? '\u2715' : '\u2630'}</span>
+            </button>
+
+            <Link href="/links/new" className="btn btn-primary hidden sm:inline-flex">
+              New link
+            </Link>
+                <form action="/auth/signout" method="post" className="hidden sm:block">
                   <button type="submit" className="btn btn-ghost">
                     Sign out
                   </button>
@@ -82,6 +115,55 @@ export default function AppShell({
               </>
             ) : null}
           </div>
+
+          {/* Mobile navigation. The desktop nav is display:none below sm, so
+              without this panel the app has no navigation on a phone. */}
+          {email && menuOpen ? (
+            <nav
+              id="mobile-nav"
+              aria-label="Main"
+              className="border-b border-[var(--ds-gray-400)] bg-[var(--ds-background-100)] sm:hidden"
+            >
+              <ul className="px-3 py-2">
+                {nav.map((item) => {
+                  const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                  return (
+                    <li key={item.href}>
+                      <Link
+                        href={item.href}
+                        onClick={() => setMenuOpen(false)}
+                        aria-current={active ? 'page' : undefined}
+                        className={`block rounded-md px-3 py-2.5 text-label-14 ${
+                          active ? 'bg-[var(--ds-gray-100)] text-primary' : 'text-secondary'
+                        }`}
+                      >
+                        {item.label}
+                      </Link>
+                    </li>
+                  );
+                })}
+                <li>
+                  <Link
+                    href="/links/new"
+                    onClick={() => setMenuOpen(false)}
+                    className="block rounded-md px-3 py-2.5 text-label-14 text-secondary"
+                  >
+                    New link
+                  </Link>
+                </li>
+              </ul>
+              <form
+                action="/auth/signout"
+                method="post"
+                className="px-3 pb-3"
+                onSubmit={() => setMenuOpen(false)}
+              >
+                <button type="submit" className="btn btn-ghost btn-block">
+                  Sign out
+                </button>
+              </form>
+            </nav>
+          ) : null}
         </div>
       </header>
 

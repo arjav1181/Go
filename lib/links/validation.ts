@@ -17,9 +17,11 @@ export const slugRegex = /^[a-z0-9_-]+$/;
  * covered here, so adding a page without reserving its slug fails the build.
  */
 export const RESERVED_SLUGS = new Set([
-  // Application routes
-  'api', 'auth', 'dashboard', 'links', 'login', 'logout', 'new', 'privacy',
-  'settings', 'tags', 'terms',
+  // Application routes. Each of these would otherwise be shadowed by a short
+  // link: `app/[slug]` matches a single path segment, so a link called /qr
+  // would win over the QR Codes page and the owner could never reach it.
+  'api', 'auth', 'campaigns', 'dashboard', 'links', 'login', 'logout',
+  'new', 'privacy', 'qr', 'settings', 'tags', 'terms',
   // System and infrastructure
   'admin', 'callback', 'cron', 'docs', 'favicon', 'health', 'icon',
   'manifest', 'opengraph-image', 'ready', 'robots', 'sitemap', 'static',

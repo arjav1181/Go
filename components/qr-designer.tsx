@@ -141,14 +141,15 @@ export function QrDesigner({ content, value, onChange, size = 260 }: QrDesignerP
   }
 
   return (
-    <div className="qr-designer">
-      <div className="qr-designer-preview">
+    <div className="qr-designer card card-pad">
+      <div className="card card-pad">
         <div ref={holder} />
       </div>
 
       <div className="qr-designer-controls">
         <Field label="Dot pattern">
           <select
+            className="select"
             value={value.dotPattern}
             onChange={(e) => patch({ dotPattern: e.target.value as DotPattern })}
           >
@@ -163,6 +164,7 @@ export function QrDesigner({ content, value, onChange, size = 260 }: QrDesignerP
 
         <Field label="Dot colour">
           <input
+            className="input"
             type="color"
             value={normaliseColor(value.dotPatternColor)}
             onChange={(e) => patch({ dotPatternColor: e.target.value })}
@@ -171,6 +173,7 @@ export function QrDesigner({ content, value, onChange, size = 260 }: QrDesignerP
 
         <Field label="Background">
           <input
+            className="input"
             type="color"
             value={normaliseColor(value.backgroundColor)}
             onChange={(e) => patch({ backgroundColor: e.target.value })}
@@ -179,6 +182,7 @@ export function QrDesigner({ content, value, onChange, size = 260 }: QrDesignerP
 
         <Field label="Error correction">
           <select
+            className="select"
             value={value.errorCorrection}
             onChange={(e) => patch({ errorCorrection: e.target.value as ErrorCorrectionLevel })}
           >
@@ -192,6 +196,7 @@ export function QrDesigner({ content, value, onChange, size = 260 }: QrDesignerP
 
         <Field label="Corner shape (applies to all three)">
           <select
+            className="select"
             value={activeCorner}
             onChange={(e) => setCorner(1, e.target.value as CornerShape)}
           >
@@ -206,6 +211,7 @@ export function QrDesigner({ content, value, onChange, size = 260 }: QrDesignerP
 
         <Field label="Logo PNG URL">
           <input
+            className="input"
             type="url"
             placeholder="https://…/logo.png"
             value={value.logoUrl ?? ''}
@@ -214,7 +220,7 @@ export function QrDesigner({ content, value, onChange, size = 260 }: QrDesignerP
         </Field>
 
         <Field label="Download as">
-          <select value={format} onChange={(e) => setFormat(e.target.value as DownloadFormat)}>
+          <select className="select" value={format} onChange={(e) => setFormat(e.target.value as DownloadFormat)}>
             <option value="png">PNG</option>
             <option value="jpeg">JPEG</option>
             <option value="svg">SVG</option>
@@ -239,7 +245,7 @@ export function QrDesigner({ content, value, onChange, size = 260 }: QrDesignerP
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="qr-field">
+    <label className="label">
       <span>{label}</span>
       {children}
     </label>
