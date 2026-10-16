@@ -38,9 +38,15 @@ export interface PageViewProps {
 export function PageView(props: PageViewProps) {
   const { handle, displayName, bioText, avatarUrl, accentColor, links, blocks, contact } = props;
 
+  /**
+   * Block clicks are counted by `/p/[pageId]/[blockId]`, which records the
+   * click server-side and then redirects. Doing it that way rather than with a
+   * client-side beacon means the count survives a blocked script, and a
+   * countdown that depends on JavaScript is a number nobody can trust.
+   */
   const content = blocks?.length
-    ? <BlockList blocks={blocks} contact={contact} />
-    : <LegacyLinkList links={links ?? []} />;
+    ? <BlockList blocks={blocks} contact={contact} pageId={props.pageId} pageHandle={handle} />
+    : <LegacyLinkList links={links ?? []} pageId={props.pageId} pageHandle={handle} />;
 
   return (
     <main
@@ -67,7 +73,15 @@ export function PageView(props: PageViewProps) {
   );
 }
 
-function LegacyLinkList({ links }: { links: PageLink[] }) {
+function LegacyLinkList({
+  links,
+  pageId,
+  pageHandle
+}: {
+  links: PageLink[];
+  pageId?: string;
+  pageHandle?: string;
+}) {
   if (!links.length) {
     return <p className="page-view-empty">No links yet.</p>;
   }
@@ -75,7 +89,11 @@ function LegacyLinkList({ links }: { links: PageLink[] }) {
     <ul className="page-link-list">
       {links.map((l) => (
         <li key={l.slug}>
-          <a className="page-link" href={l.href} rel="noopener nofollow" target="_blank">
+          <a
+            className="page-link"
+            href={blockHref(pageId, pageHandle, `legacy-${l.slug}`, l.href)}
+            rel="noopener nofollow"
+          >
             <span className="page-link-label">{l.label}</span>
             {l.description ? <span className="page-link-desc">{l.description}</span> : null}
           </a>
@@ -85,18 +103,40 @@ function LegacyLinkList({ links }: { links: PageLink[] }) {
   );
 }
 
+/**
+ * Route an outbound link through the click counter.
+ *
+ * Falls back to the raw href when the page has no id, so a block is never
+ * rendered uncountable — a slightly undercounted page beats a broken link.
+ */
+function blockHref(
+  pageId: string | undefined,
+  pageHandle: string | undefined,
+  blockId: string,
+  href: string
+): string {
+  if (!pageId || !pageHandle) return href;
+  const safe = safeHref(href);
+  if (!safe) return '#';
+  return `/p/${encodeURIComponent(pageHandle)}/${encodeURIComponent(blockId)}?to=${encodeURIComponent(safe)}`;
+}
+
 function BlockList({
   blocks,
-  contact
+  contact,
+  pageId,
+  pageHandle
 }: {
   blocks: PageBlock[];
   contact?: { name: string; email: string; phone: string };
+  pageId?: string;
+  pageHandle?: string;
 }) {
   if (!blocks.length) return <p className="page-view-empty">This page has no visible blocks yet.</p>;
   return (
     <div className="page-blocks">
       {blocks.map((block) => (
-        <Block key={block.blockId} block={block} contact={contact} />
+        <Block key={block.blockId} block={block} contact={contact} pageId={pageId} pageHandle={pageHandle} />
       ))}
     </div>
   );
@@ -104,10 +144,14 @@ function BlockList({
 
 function Block({
   block,
-  contact
+  contact,
+  pageId,
+  pageHandle
 }: {
   block: PageBlock;
   contact?: { name: string; email: string; phone: string };
+  pageId?: string;
+  pageHandle?: string;
 }) {
   switch (block.type) {
     case 'text': {
@@ -135,7 +179,12 @@ function Block({
       if (!href) return null;
       return (
         <div className="page-block-link">
-          <a className="page-link" href={href} target="_blank" rel="noopener nofollow">
+          <a
+            className="page-link"
+            href={blockHref(pageId, pageHandle, block.blockId, href)}
+            target="_blank"
+            rel="noopener nofollow"
+          >
             {block.thumbnailUrl && safeHref(block.thumbnailUrl) ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img className="page-link-thumb" src={safeHref(block.thumbnailUrl) as string} alt="" width={56} height={56} />
@@ -207,7 +256,7 @@ function Block({
             </a>
           ) : null}
           {block.allowDownload && vcard ? (
-            <a className="page-contact-download" href={`data:text/vcard;charset=utf-8,${encodeURIComponent(vcard)}`} download="contact.vcf">
+            <a className="page-contact-download" href={blockHref(pageId, pageHandle, block.blockId, `data:text/vcard;charset=utf-8,${encodeURIComponent(vcard)}`)}>
               {block.label || 'Save contact'}
             </a>
           ) : null}

@@ -10,6 +10,13 @@ import { domainConfigFromEnv, resolveHostScope } from '@/lib/links/domains';
 import { loadLinkWithConfig } from '@/lib/links/redirect-config';
 import { after } from 'next/server';
 import { verifyLinkPassword } from '@/lib/links/passwords';
+import {
+  issueGrant,
+  verifyGrant,
+  grantCookieName,
+  grantCookieOptions,
+  GRANT_TTL_MS
+} from '@/lib/links/password-grant';
 import { campaignFromUrl, withCampaignParam } from '@/lib/links/campaigns';
 import { recordOperationalEvent, PERSISTED_EVENTS } from '@/lib/observability';
 
@@ -263,8 +270,21 @@ export async function GET(request: Request, context: { params: Promise<{ slug: s
      * guess reveals neither the target nor the fact that a schedule exists.
      */
     if (link!.password_hash) {
-      const supplied = new URL(request.url).searchParams.get('pw');
-      if (!supplied || !verifyLinkPassword(link!.password_hash, supplied)) {
+      /**
+       * Two ways in, in order of preference:
+       *
+       *   1. A signed grant cookie, set by POST after a successful check. This
+       *      is the browser path and keeps the password out of the URL, history
+       *      and the destination's Referer header.
+       *   2. `?pw=`, which exists for API and CLI callers that have no cookie
+       *      jar. A browser that uses it puts the password in its own history,
+       *      which is why the form does not use it.
+       */
+      const grant = verifyGrant(request.headers.get('cookie') ? readCookie(request, grantCookieName(slug)) : null);
+      const granted = grant !== null && grant.linkId === link!.id && grant.slug === slug;
+
+      const supplied = granted ? null : new URL(request.url).searchParams.get('pw');
+      if (!granted && (!supplied || !verifyLinkPassword(link!.password_hash, supplied))) {
         after(() =>
           recordOperationalEvent(PERSISTED_EVENTS.linkPasswordPrompted, 'info', {})
         );
@@ -336,4 +356,101 @@ export async function GET(request: Request, context: { params: Promise<{ slug: s
     logError(EVENTS.redirectError, error, { correlation_id: correlationId, slug_length: slug.length });
     return htmlResponse(503, 'Temporarily unavailable', 'This short link could not be resolved right now. Please try again later.');
   }
+}
+/**
+ * POST /{slug}
+ *
+ * The password prompt form targets this. It verifies the submitted password and,
+ * on success, sets a signed grant cookie and redirects to the plain GET.
+ *
+ * Without this handler the form posted to a route that only exported GET, so
+ * every password-protected link returned 405 and the feature was unreachable.
+ *
+ * Rate limiting here is deliberate and differs from the redirect path: an
+ * unlimited attempt loop against scrypt is a usable CPU-exhaustion vector, so
+ * failures spend the abuse budget. A correct guess is free.
+ */
+export async function POST(request: Request, context: { params: Promise<{ slug: string }> }) {
+  const correlationId = correlationIdFrom(request.headers);
+  setCorrelationId(correlationId);
+
+  const { slug } = await context.params;
+  if (!slug || slug.includes('/') || slug.includes('\\')) {
+    return new NextResponse('Link not found', { status: 404 });
+  }
+
+  let form: FormData;
+  try {
+    form = await request.formData();
+  } catch {
+    return passwordPrompt(slug, 'Could not read the form.');
+  }
+
+  const supplied = String(form.get('pw') ?? '');
+  if (!supplied) {
+    return passwordPrompt(slug, 'Enter the password to continue.');
+  }
+
+  const supabase = getServiceSupabase();
+  const { data } = await supabase
+    .from('links')
+    .select('id, password_hash, is_active, expires_at')
+    .eq('slug', slug)
+    .maybeSingle();
+
+  const link = data as { id: string; password_hash: string | null; is_active: boolean; expires_at: string | null } | null;
+
+  // Same response whether the link is missing, not password protected, or the
+  // password was wrong, so this endpoint cannot be used to enumerate which
+  // slugs exist or which are protected.
+  const genericFailure = () => {
+    after(() => recordOperationalEvent(PERSISTED_EVENTS.linkPasswordPrompted, 'info', {}));
+    return passwordPrompt(slug, 'That password is not correct.');
+  };
+
+  if (!link || !link.password_hash || !verifyLinkPassword(link.password_hash, supplied)) {
+    const limit = await checkRateLimit(policyFor('password', callerKeyFromHeaders(request.headers)));
+    if (!limit.allowed) {
+      logEvent(EVENTS.redirectRateLimited, 'warn', { correlation_id: correlationId });
+      return new NextResponse('Too many attempts.', {
+        status: 429,
+        headers: { 'Retry-After': String(limit.retryAfterSeconds), 'Cache-Control': 'no-store' }
+      });
+    }
+    return genericFailure();
+  }
+
+  const token = issueGrant({ slug, linkId: link.id });
+  if (!token) {
+    // No signing key configured, so a grant cannot be issued. Fail loudly in
+    // the server log but do not tell the visitor, and still honour a correct
+    // password by letting them through on the query-string path.
+    logError('No signing key for password grants; falling back to query-string unlock.', {
+      correlation_id: correlationId
+    });
+    return NextResponse.redirect(new URL(`/${encodeURIComponent(slug)}?pw=${encodeURIComponent(supplied)}`, request.url), {
+      status: 303
+    });
+  }
+
+  const secure = new URL(request.url).protocol === 'https:';
+  const response = NextResponse.redirect(new URL(`/${encodeURIComponent(slug)}`, request.url), { status: 303 });
+  response.headers.append(
+    'Set-Cookie',
+    `${grantCookieName(slug)}=${token}; ${grantCookieOptions(Math.floor(GRANT_TTL_MS / 1000), secure)}`
+  );
+  response.headers.set('Cache-Control', 'no-store');
+  return response;
+}
+
+/** Minimal cookie header read; avoids a dependency for one value. */
+function readCookie(request: Request, name: string): string | null {
+  const header = request.headers.get('cookie');
+  if (!header) return null;
+  for (const part of header.split(';')) {
+    const eq = part.indexOf('=');
+    if (eq === -1) continue;
+    if (part.slice(0, eq).trim() === name) return part.slice(eq + 1).trim();
+  }
+  return null;
 }

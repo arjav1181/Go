@@ -143,7 +143,13 @@ export const POLICIES = {
   /** CSV export scans the whole stats table. */
   export: { scope: 'export', limit: 10, windowSeconds: 3600 },
   /** Public redirects: a light brake against scripted abuse only. */
-  redirect: { scope: 'redirect', limit: 600, windowSeconds: 60 }
+  redirect: { scope: 'redirect', limit: 600, windowSeconds: 60 },
+  /**
+   * Password attempts. Tight, because each guess costs a scrypt derivation
+   * (~50ms of CPU) — an unlimited loop here is a usable compute-exhaustion
+   * vector even though the password space itself is not guessable.
+   */
+  password: { scope: 'link-password', limit: 10, windowSeconds: 300 }
 } as const;
 
 export type PolicyName = keyof typeof POLICIES;
