@@ -338,7 +338,9 @@ export async function GET(request: Request, context: { params: Promise<{ slug: s
         referrer: request.headers.get('referer'),
         userAgent: request.headers.get('user-agent'),
         variantLabel: resolved.variantLabel,
-        campaign
+        campaign,
+        // Resolved at the CDN edge; no visitor IP is stored.
+        countryCode: request.headers.get('x-vercel-ip-country')
       });
 
       if (resolved.experimentId) {
