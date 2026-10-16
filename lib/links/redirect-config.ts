@@ -9,9 +9,26 @@ export type RedirectConfig = {
   rules: Rule[];
 };
 
-/** Columns selected on the combined lookup, including embedded routing config. */
-const EMBEDDED_SELECT =
+/**
+ * Column sets tried in order, most capable first.
+ *
+ * The redirect must work against a database that has not been migrated yet,
+ * and it must work against one that has been partly migrated. PostgREST cannot
+ * ask for an optional column, so a query naming a missing column fails
+ * outright — including the fallback. Degrading one column-set at a time is what
+ * turns "this deployment is ahead of the database" from a redirect outage into
+ * a slightly less capable redirect.
+ */
+const SELECT_FULL =
   'id, destination_url, is_active, expires_at, created_by, password_hash, campaign,' +
+  'link_schedules(id, destination_url, starts_at, ends_at),' +
+  'link_variants(id, label, destination_url, weight, is_active, experiment_id),' +
+  'link_rules(id, name, priority, destination_url, weight, is_active,' +
+  'link_rule_conditions(id, kind, param, value, starts_at, ends_at))';
+
+/** Same, minus columns introduced by migration 0011. */
+const SELECT_NO_PHASE_SIX =
+  'id, destination_url, is_active, expires_at, created_by,' +
   'link_schedules(id, destination_url, starts_at, ends_at),' +
   'link_variants(id, label, destination_url, weight, is_active, experiment_id),' +
   'link_rules(id, name, priority, destination_url, weight, is_active,' +
@@ -31,14 +48,14 @@ export type LinkWithConfig = {
  * Fetch a link *and* everything the redirect engine needs for it, in one
  * round trip.
  *
- * The redirect path previously ran two queries that both started from `links`:
- * one to resolve the slug, then a second to fetch the routing config by id.
- * On the hot path that second query was pure latency, so the two are now a
- * single embedded select.
+ * Previously this ran two queries that both started from `links`: resolve the
+ * slug, then fetch routing config by id. Folding them together removes a full
+ * database round trip from every redirect.
  *
- * If the embedded select fails — an unmigrated database, or a PostgREST
- * relationship that cannot be resolved — it degrades to the per-table loader
- * rather than failing the redirect.
+ * Tries progressively smaller column sets so a partially migrated database
+ * still redirects. Every step here has actually happened in production — a
+ * deployment got ahead of the database and every link 404'd until this ladder
+ * existed.
  */
 export async function loadLinkWithConfig(params: {
   slug: string;
@@ -46,17 +63,20 @@ export async function loadLinkWithConfig(params: {
 }): Promise<LinkWithConfig | null> {
   const supabase = getServiceSupabase();
 
-  try {
-    const query = supabase
-      .from('links')
-      .select(EMBEDDED_SELECT)
-      .eq('slug', params.slug)
-      .eq('domain', params.domain);
+  for (const columns of [SELECT_FULL, SELECT_NO_PHASE_SIX]) {
+    try {
+      const { data, error } = await supabase
+        .from('links')
+        .select(columns)
+        .eq('slug', params.slug)
+        .eq('domain', params.domain)
+        .maybeSingle();
 
-    const { data, error } = await query.maybeSingle();
-    if (!error && data) return shapeLink(data as unknown as Record<string, unknown>);
-  } catch {
-    // Fall through to the two-query path.
+      if (!error && data) return shapeLink(data as unknown as Record<string, unknown>);
+      if (error) continue;
+    } catch {
+      continue;
+    }
   }
 
   return loadLinkWithConfigFallback(params.slug, params.domain);
@@ -69,8 +89,10 @@ function shapeLink(row: Record<string, unknown>): LinkWithConfig {
     is_active: row.is_active as boolean,
     expires_at: (row.expires_at as string | null) ?? null,
     created_by: (row.created_by as string | null) ?? null,
-    password_hash: (row.password_hash as string | null) ?? null,
-    campaign: (row.campaign as string | null) ?? null,
+    // Absent rather than null means the column does not exist on this
+    // database. Both must behave as "not set", never as an error.
+    password_hash: (row.password_hash as string | null | undefined) ?? null,
+    campaign: (row.campaign as string | null | undefined) ?? null,
     schedules: (row.link_schedules as ScheduleWindow[]) ?? [],
     variants: (row.link_variants as ExperimentVariant[]) ?? [],
     rules: shapeRules(row.link_rules)
@@ -101,13 +123,18 @@ function shapeRules(raw: unknown): Rule[] {
   }));
 }
 
-/** Two-query path, used only when the embedded select is unavailable. */
+/**
+ * Last resort: a minimal link lookup plus per-table config.
+ *
+ * Only selects columns present since migration 0001, because by the time this
+ * runs the database is known not to support the newer ones.
+ */
 async function loadLinkWithConfigFallback(slug: string, domain: string): Promise<LinkWithConfig | null> {
   const supabase = getServiceSupabase();
 
   const { data: link } = await supabase
     .from('links')
-    .select('id, destination_url, is_active, expires_at, created_by, password_hash, campaign')
+    .select('id, destination_url, is_active, expires_at, created_by')
     .eq('slug', slug)
     .eq('domain', domain)
     .maybeSingle();
@@ -115,7 +142,12 @@ async function loadLinkWithConfigFallback(slug: string, domain: string): Promise
   if (!link) return null;
 
   const config = await loadRedirectConfig((link as { id: string }).id);
-  return { ...(link as Omit<LinkWithConfig, keyof RedirectConfig>), ...config };
+  return {
+    ...(link as Omit<LinkWithConfig, keyof RedirectConfig>),
+    password_hash: null,
+    campaign: null,
+    ...config
+  };
 }
 
 /**
