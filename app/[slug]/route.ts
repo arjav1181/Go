@@ -7,7 +7,8 @@ import { logEvent, logError, EVENTS, correlationIdFrom, setCorrelationId } from 
 import { checkRateLimit, policyFor, callerKeyFromHeaders } from '@/lib/ratelimit/limiter';
 import { resolveRedirectTarget, experimentSalt } from '@/lib/links/resolve-target';
 import { domainConfigFromEnv, resolveHostScope } from '@/lib/links/domains';
-import { loadRedirectConfig } from '@/lib/links/redirect-config';
+import { loadLinkWithConfig } from '@/lib/links/redirect-config';
+import { after } from 'next/server';
 import { verifyLinkPassword } from '@/lib/links/passwords';
 import { campaignFromUrl, withCampaignParam } from '@/lib/links/campaigns';
 import { recordOperationalEvent, PERSISTED_EVENTS } from '@/lib/observability';
@@ -214,8 +215,6 @@ export async function GET(request: Request, context: { params: Promise<{ slug: s
   }
 
   try {
-    const supabase = getServiceSupabase();
-
     // Alias domains are opt-in via ALIAS_DOMAINS; with the feature off this
     // always resolves to the canonical domain, exactly as before.
     const hostScope = resolveHostScope(
@@ -223,19 +222,17 @@ export async function GET(request: Request, context: { params: Promise<{ slug: s
       domainConfigFromEnv(process.env, process.env.NEXT_PUBLIC_APP_URL)
     );
 
-    let lookup = supabase
-      .from('links')
-      .select('id, destination_url, is_active, expires_at, created_by, password_hash, campaign')
-      .eq('slug', slug);
-
-    // Only narrow by domain when an alias is actually in play.
-    if (hostScope.isAlias) {
-      lookup = lookup.eq('domain', hostScope.domain);
-    } else {
-      lookup = lookup.eq('domain', '');
-    }
-
-    const { data: link } = await lookup.single();
+    /**
+     * One round trip for the link and all of its routing config.
+     *
+     * Previously this was two queries that both started from `links`: resolve
+     * the slug, then fetch schedules/variants/rules by id. Folding them
+     * together removes a full database round trip from every redirect.
+     */
+    const link = await loadLinkWithConfig({
+      slug,
+      domain: hostScope.isAlias ? hostScope.domain : ''
+    });
 
     // Lifecycle first: disabled/expired links never reach the redirect engine.
     const decision = decideRedirect(link);
@@ -268,14 +265,14 @@ export async function GET(request: Request, context: { params: Promise<{ slug: s
     if (link!.password_hash) {
       const supplied = new URL(request.url).searchParams.get('pw');
       if (!supplied || !verifyLinkPassword(link!.password_hash, supplied)) {
-        await recordOperationalEvent(PERSISTED_EVENTS.linkPasswordPrompted, 'info', {});
+        after(() =>
+          recordOperationalEvent(PERSISTED_EVENTS.linkPasswordPrompted, 'info', {})
+        );
         return passwordPrompt(slug, supplied ? 'That password is not correct.' : undefined);
       }
     }
 
-    // One embedded query for all rule data, with a per-table fallback inside
-    // the loader so a partial schema can never break the redirect.
-    const { schedules, variants, rules } = await loadRedirectConfig(link!.id);
+    const { schedules, variants, rules } = link!;
 
     const requestUrl = new URL(request.url);
     const query: Record<string, string> = {};
@@ -306,18 +303,28 @@ export async function GET(request: Request, context: { params: Promise<{ slug: s
       ? withCampaignParam(resolved.destination, link!.campaign)
       : resolved.destination;
 
-    await recordClick({
-      linkId: link!.id,
-      ownerId: link!.created_by ?? undefined,
-      referrer: request.headers.get('referer'),
-      userAgent: request.headers.get('user-agent'),
-      variantLabel: resolved.variantLabel,
-      campaign
-    });
+    /**
+     * Analytics run *after* the response is sent.
+     *
+     * These were previously awaited, which put two database round trips in
+     * front of every visitor. `after()` keeps the exact same guarantees — the
+     * events are still written on the platform's behalf, and failures are
+     * still swallowed — but they no longer delay the 302.
+     */
+    after(async () => {
+      await recordClick({
+        linkId: link!.id,
+        ownerId: link!.created_by ?? undefined,
+        referrer: request.headers.get('referer'),
+        userAgent: request.headers.get('user-agent'),
+        variantLabel: resolved.variantLabel,
+        campaign
+      });
 
-    if (resolved.experimentId) {
-      await recordAssignment(resolved.experimentId, resolved.variantLabel);
-    }
+      if (resolved.experimentId) {
+        await recordAssignment(resolved.experimentId, resolved.variantLabel);
+      }
+    });
 
     const response = NextResponse.redirect(location, 302);
     response.headers.set('Cache-Control', 'no-store');
