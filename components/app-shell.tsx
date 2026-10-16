@@ -29,16 +29,16 @@ export default function AppShell({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--bg)]/80 backdrop-blur-md">
-        <div className="mx-auto flex h-14 max-w-6xl items-center gap-6 px-5">
+      <header className="sticky top-0 z-50 border-b border-[var(--ds-gray-400)] bg-[var(--ds-background-100)]/85 backdrop-blur-md">
+        <div className="mx-auto flex h-14 max-w-5xl items-center gap-6 px-5">
           <Link
             href="/"
-            className="flex items-center gap-2 text-[15px] font-semibold tracking-tight"
+            className="flex items-center gap-2 text-heading-16 text-primary"
             aria-label="go. home"
           >
             <span
               aria-hidden
-              className="grid h-5 w-5 place-items-center rounded-[5px] bg-[var(--fg)] text-[10px] font-bold text-[var(--bg)]"
+              className="grid h-5 w-5 place-items-center rounded-[5px] bg-[var(--ds-gray-1000)] font-mono text-[10px] font-bold text-[var(--ds-background-100)]"
             >
               g
             </span>
@@ -55,10 +55,10 @@ export default function AppShell({
                     key={item.href}
                     href={item.href}
                     aria-current={active ? 'page' : undefined}
-                    className={`rounded-md px-2.5 py-1.5 text-[13px] transition-colors ${
+                    className={`rounded-md px-2.5 py-1.5 text-label-14 transition-colors ${
                       active
-                        ? 'bg-[var(--surface)] font-medium text-[var(--fg)]'
-                        : 'text-[var(--muted)] hover:text-[var(--fg)]'
+                        ? 'bg-[var(--ds-gray-100)] text-primary'
+                        : 'text-secondary hover:text-primary'
                     }`}
                   >
                     {item.label}
@@ -99,13 +99,13 @@ export default function AppShell({
 
 function SiteFooter() {
   return (
-    <footer className="border-t border-[var(--border)]">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-5 py-10 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-[13px] text-[var(--muted)]">
-          <span className="font-medium text-[var(--fg)]">go.</span> — privately operated on a
-          single domain.
+    <footer className="border-t border-[var(--ds-gray-400)]">
+      <div className="mx-auto flex max-w-5xl flex-col gap-4 px-5 py-10 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-label-13 text-secondary">
+          <span className="font-medium text-primary">go.</span> — privately operated on a single
+          domain.
         </p>
-        <nav aria-label="Footer" className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px]">
+        <nav aria-label="Footer" className="flex flex-wrap items-center gap-x-5 gap-y-2 text-label-13">
           <Link href="/privacy" className="text-[var(--muted)] transition-colors hover:text-[var(--fg)]">
             Privacy
           </Link>

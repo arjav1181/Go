@@ -89,8 +89,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
     <div className="mx-auto w-full max-w-6xl space-y-7 px-5 py-10">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-[22px] font-semibold tracking-tight">Links</h1>
-          <p className="mt-0.5 text-[13px] text-[var(--muted)]">
+          <h1 className="text-heading-24">Links</h1>
+          <p className="mt-0.5 text-[13px] text-[var(--ds-gray-900)]">
             Manage your short links and view aggregate clicks.
           </p>
         </div>
@@ -130,14 +130,14 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
 
       {tags.length > 0 ? (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="mr-1 text-[13px] text-[var(--muted)]">Filter</span>
+          <span className="mr-1 text-[13px] text-[var(--ds-gray-900)]">Filter</span>
           <Link
             href="/dashboard"
             aria-current={activeTag ? undefined : 'page'}
             className={
               activeTag
-                ? 'rounded-md border border-[var(--border)] px-2.5 py-1 text-[12px] text-[var(--muted)] transition-colors hover:text-[var(--fg)]'
-                : 'rounded-md border border-[var(--border-strong)] bg-[var(--surface)] px-2.5 py-1 text-[12px] font-medium text-[var(--fg)]'
+                ? 'rounded-md border border-[var(--ds-gray-400)] px-2.5 py-1 text-label-13 text-secondary transition-colors hover:text-[var(--ds-gray-1000)]'
+                : 'rounded-md border border-[var(--ds-gray-500)] bg-[var(--ds-background-200)] px-2.5 py-1 text-[12px] font-medium text-[var(--ds-gray-1000)]'
             }
           >
             All
@@ -149,8 +149,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
               aria-current={tag.id === activeTagId ? 'page' : undefined}
               className={
                 tag.id === activeTagId
-                  ? 'rounded-md border border-[var(--border-strong)] bg-[var(--surface)] px-2.5 py-1 text-[12px] font-medium text-[var(--fg)]'
-                  : 'rounded-md border border-[var(--border)] px-2.5 py-1 text-[12px] text-[var(--muted)] transition-colors hover:text-[var(--fg)]'
+                  ? 'rounded-md border border-[var(--ds-gray-500)] bg-[var(--ds-background-200)] px-2.5 py-1 text-[12px] font-medium text-[var(--ds-gray-1000)]'
+                  : 'rounded-md border border-[var(--ds-gray-400)] px-2.5 py-1 text-label-13 text-secondary transition-colors hover:text-[var(--ds-gray-1000)]'
               }
             >
               {tag.name}
@@ -159,16 +159,16 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
         </div>
       ) : null}
 
-      <div className="overflow-x-auto rounded-xl border border-[var(--border)]">
+      <div className="overflow-x-auto rounded-xl border border-[var(--ds-gray-400)]">
         <table className="w-full text-[13px]">
-          <thead className="bg-[var(--surface)] text-left text-[11px] uppercase tracking-[0.04em] text-[var(--muted)]">
+          <thead className="bg-[var(--ds-background-200)] text-left text-label-12 uppercase tracking-[0.04em] text-tertiary">
             <tr>
-              <th scope="col" className="px-5 py-2.5 font-medium">Slug / title</th>
-              <th scope="col" className="px-5 py-2.5 font-medium">Destination</th>
-              <th scope="col" className="px-5 py-2.5 font-medium">State</th>
-              <th scope="col" className="px-5 py-2.5 font-medium">Organisation</th>
+              <th scope="col" className="px-5 py-2.5 text-label-13 font-medium">Slug / title</th>
+              <th scope="col" className="px-5 py-2.5 text-label-13 font-medium">Destination</th>
+              <th scope="col" className="px-5 py-2.5 text-label-13 font-medium">State</th>
+              <th scope="col" className="px-5 py-2.5 text-label-13 font-medium">Organisation</th>
               <th scope="col" className="px-5 py-2.5 text-right font-medium">Clicks</th>
-              <th scope="col" className="px-5 py-2.5 font-medium">Created</th>
+              <th scope="col" className="px-5 py-2.5 text-label-13 font-medium">Created</th>
             </tr>
           </thead>
           <tbody>
@@ -178,7 +178,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
                   <p className="text-[14px] font-medium">
                     {rawQuery || activeTag ? 'No matches' : 'No links yet'}
                   </p>
-                  <p className="mt-1 text-[13px] text-[var(--muted)]">
+                  <p className="mt-1 text-[13px] text-[var(--ds-gray-900)]">
                     {rawQuery || activeTag
                       ? 'No links match this search or filter.'
                       : 'Create your first short link to get started.'}
@@ -191,26 +191,26 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
               const linkTags = tags.filter((tag) => rel.tag_ids.includes(tag.id));
               const linkFolders = folders.filter((folder) => rel.folder_ids.includes(folder.id));
               return (
-                <tr key={link.id} className="border-t border-[var(--border)] align-top transition-colors hover:bg-[var(--card-hover)]">
+                <tr key={link.id} className="border-t border-[var(--ds-gray-400)] align-top transition-colors hover:bg-[var(--ds-background-200)]">
                   <td className="px-5 py-3.5">
                     <Link
                       href={`/links/${link.id}`}
                       title={`${appUrl}/${link.slug}`}
-                      className="font-mono text-[13px] font-medium text-[var(--fg)] underline-offset-4 hover:underline"
+                      className="font-mono text-label-14 font-medium text-primary underline-offset-4 hover:underline"
                     >
                       /{link.slug}
                     </Link>
                     {link.title ? (
-                      <p className="mt-0.5 truncate text-[12px] text-[var(--muted)]">{link.title}</p>
+                      <p className="mt-0.5 truncate text-label-13 text-secondary">{link.title}</p>
                     ) : null}
                   </td>
-                  <td className="max-w-xs truncate px-5 py-3.5 font-mono text-[12px] text-[var(--muted)]">
+                  <td className="max-w-xs truncate px-5 py-3.5 font-mono text-label-13 text-tertiary">
                     {link.destination_url}
                   </td>
                   <td className="px-5 py-3.5">
                     <StatusBadge isActive={link.is_active} expiresAt={link.expires_at} now={now} />
                     {link.expires_at ? (
-                      <p className="mt-1 text-xs text-[var(--muted)]">
+                      <p className="mt-1 text-xs text-[var(--ds-gray-900)]">
                         {formatDate(link.expires_at)}
                       </p>
                     ) : null}
@@ -220,7 +220,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
                       {linkTags.map((tag) => (
                         <span
                           key={tag.id}
-                          className="rounded border border-[var(--border)] bg-[var(--surface)] px-1.5 py-0.5 text-[11px] text-[var(--muted)]"
+                          className="rounded border border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] px-1.5 py-0.5 text-[11px] text-[var(--ds-gray-900)]"
                         >
                           #{tag.name}
                         </span>
@@ -228,18 +228,18 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
                       {linkFolders.map((folder) => (
                         <span
                           key={folder.id}
-                          className="rounded border border-[var(--border)] bg-[var(--surface)] px-1.5 py-0.5 text-[11px] text-[var(--muted)]"
+                          className="rounded border border-[var(--ds-gray-400)] bg-[var(--ds-background-200)] px-1.5 py-0.5 text-[11px] text-[var(--ds-gray-900)]"
                         >
                           {folderNameById.get(folder.id) ?? folder.name}
                         </span>
                       ))}
                       {linkTags.length === 0 && linkFolders.length === 0 ? (
-                        <span className="text-[12px] text-[var(--subtle)]">—</span>
+                        <span className="text-label-12 text-tertiary">—</span>
                       ) : null}
                     </div>
                   </td>
                   <td className="px-5 py-3.5 text-right tabular-nums">{analytics.comparison.current}</td>
-                  <td className="px-5 py-3.5 text-[12px] text-[var(--muted)]">
+                  <td className="px-5 py-3.5 text-label-13 text-secondary">
                     {formatDate(link.created_at)}
                   </td>
                 </tr>
@@ -249,10 +249,10 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
         </table>
       </div>
 
-      <section className="space-y-3 border-t border-[var(--border)] pt-7">
-        <h2 className="text-[15px] font-semibold">Aggregate activity</h2>
+      <section className="space-y-3 border-t border-[var(--ds-gray-400)] pt-7">
+        <h2 className="text-heading-16">Aggregate activity</h2>
         <AnalyticsPanel data={analytics} basePath="/dashboard" />
-        <p className="text-[12px] text-[var(--subtle)]">
+        <p className="text-label-12 text-tertiary">
           Counts are clicks, not unique visitors. Days are aggregated in UTC.
         </p>
       </section>

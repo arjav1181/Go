@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from 'next';
+import { GeistSans } from 'geist/font/sans';
+import { GeistMono } from 'geist/font/mono';
 
 import type { ReactNode } from 'react';
 import { getCurrentUser } from '@/lib/auth/owner';
@@ -58,7 +60,7 @@ export const viewport: Viewport = {
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const user = await getCurrentUser().catch(() => null);
   return (
-    <html lang="en">
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <body>
         <AppShell email={user?.email ?? null}>{children}</AppShell>
       </body>

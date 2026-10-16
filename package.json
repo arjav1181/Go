@@ -13,6 +13,7 @@
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.103.1",
+    "geist": "^1.7.2",
     "next": "16.4.1",
     "qrcode": "^1.5.4",
     "react": "19.2.4",

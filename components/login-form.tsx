@@ -47,17 +47,17 @@ export default function LoginForm() {
   return (
     <form onSubmit={onSubmit} className="space-y-5">
       {urlError ? (
-        <p className="rounded-lg border border-[var(--danger)]/25 bg-[var(--danger)]/8 px-3.5 py-3 text-[13px] text-[var(--danger)]">
+        <p className="rounded-lg border border-[var(--ds-red-500)]/30 bg-[var(--ds-red-500)]/10 px-3.5 py-3 text-copy-13 text-[var(--ds-red-600)]">
           {urlError}
         </p>
       ) : null}
       {error ? (
-        <p role="alert" className="rounded-lg border border-[var(--danger)]/25 bg-[var(--danger)]/8 px-3.5 py-3 text-[13px] text-[var(--danger)]">
+        <p role="alert" className="rounded-lg border border-[var(--ds-red-500)]/30 bg-[var(--ds-red-500)]/10 px-3.5 py-3 text-copy-13 text-[var(--ds-red-600)]">
           {error}
         </p>
       ) : null}
       <div className="space-y-1.5">
-        <label htmlFor="email" className="block text-[13px] font-medium">Email</label>
+        <label htmlFor="email" className="block text-label-14 text-primary">Email</label>
         <input
           id="email"
           name="email"
@@ -70,7 +70,7 @@ export default function LoginForm() {
         />
       </div>
       <div className="space-y-1.5">
-        <label htmlFor="password" className="block text-[13px] font-medium">Password</label>
+        <label htmlFor="password" className="block text-label-14 text-primary">Password</label>
         <input
           id="password"
           name="password"
@@ -82,7 +82,7 @@ export default function LoginForm() {
           className="input"
         />
       </div>
-      <button type="submit" disabled={loading} className="btn btn-primary h-10 w-full text-[15px]">
+      <button type="submit" disabled={loading} className="btn btn-primary btn-lg w-full">
         {loading ? 'Signing in…' : 'Sign in'}
       </button>
     </form>
