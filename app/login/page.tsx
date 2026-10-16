@@ -10,10 +10,12 @@ export const metadata = {
 
 export default function LoginPage() {
   return (
-    <div className="mx-auto max-w-sm space-y-6 py-10">
-      <div className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight">Owner sign in</h1>
-        <p className="text-sm text-[var(--muted)]">Only verified owner accounts may manage links.</p>
+    <div className="mx-auto w-full max-w-sm px-5 py-16 sm:py-24">
+      <div className="mb-8 space-y-2">
+        <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
+        <p className="text-[13px] leading-relaxed text-[var(--muted)]">
+          Only accounts on the owner allowlist may manage links.
+        </p>
       </div>
       <Suspense fallback={null}>
         <LoginForm />

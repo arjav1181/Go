@@ -86,31 +86,30 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
   const now = new Date();
 
   return (
-    <div className="space-y-8">
+    <div className="mx-auto w-full max-w-6xl space-y-7 px-5 py-10">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-          <p className="text-sm text-[var(--muted)]">Manage your short links and view aggregate clicks.</p>
+          <h1 className="text-[22px] font-semibold tracking-tight">Links</h1>
+          <p className="mt-0.5 text-[13px] text-[var(--muted)]">
+            Manage your short links and view aggregate clicks.
+          </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <a
             href={exportHref({ range: resolved?.range, start: resolved?.start, end: resolved?.end }, 'granular')}
-            className="rounded-md border border-[var(--border)] px-3 py-2 text-sm font-medium"
+            className="btn btn-secondary"
           >
-            Export CSV (detail)
+            Export detail
           </a>
           <a
             href={exportHref({ range: resolved?.range, start: resolved?.start, end: resolved?.end }, 'daily')}
-            className="rounded-md border border-[var(--border)] px-3 py-2 text-sm font-medium"
+            className="btn btn-secondary"
           >
-            Export CSV (daily)
+            Export daily
           </a>
-          <Link
-            href="/links/new"
-            className="inline-flex items-center gap-2 rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white"
-          >
+          <Link href="/links/new" className="btn btn-primary">
             New link
-            <kbd className="rounded bg-white/20 px-1.5 py-0.5 font-mono text-[10px]">n</kbd>
+            <kbd className="rounded border border-current/20 px-1 font-mono text-[10px] opacity-70">n</kbd>
           </Link>
         </div>
       </div>
@@ -119,26 +118,26 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
         <input
           name="q"
           defaultValue={rawQuery}
-          placeholder="Search by slug or title"
+          placeholder="Search by slug or title…"
           aria-label="Search links by slug or title"
-          className="flex-1 rounded-md border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-sm"
+          className="input flex-1 sm:max-w-sm"
         />
         {activeTag ? <input type="hidden" name="tag" value={activeTag.id} /> : null}
-        <button type="submit" className="rounded-md border border-[var(--border)] px-3 py-2 text-sm">
+        <button type="submit" className="btn btn-secondary">
           Search
         </button>
       </form>
 
       {tags.length > 0 ? (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-[var(--muted)]">Filter by tag:</span>
+          <span className="mr-1 text-[13px] text-[var(--muted)]">Filter</span>
           <Link
             href="/dashboard"
             aria-current={activeTag ? undefined : 'page'}
             className={
               activeTag
-                ? 'rounded-full border border-[var(--border)] px-3 py-1 text-xs'
-                : 'rounded-full bg-[var(--accent)] px-3 py-1 text-xs font-medium text-white'
+                ? 'rounded-md border border-[var(--border)] px-2.5 py-1 text-[12px] text-[var(--muted)] transition-colors hover:text-[var(--fg)]'
+                : 'rounded-md border border-[var(--border-strong)] bg-[var(--surface)] px-2.5 py-1 text-[12px] font-medium text-[var(--fg)]'
             }
           >
             All
@@ -150,8 +149,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
               aria-current={tag.id === activeTagId ? 'page' : undefined}
               className={
                 tag.id === activeTagId
-                  ? 'rounded-full bg-[var(--accent)] px-3 py-1 text-xs font-medium text-white'
-                  : 'rounded-full border border-[var(--border)] px-3 py-1 text-xs'
+                  ? 'rounded-md border border-[var(--border-strong)] bg-[var(--surface)] px-2.5 py-1 text-[12px] font-medium text-[var(--fg)]'
+                  : 'rounded-md border border-[var(--border)] px-2.5 py-1 text-[12px] text-[var(--muted)] transition-colors hover:text-[var(--fg)]'
               }
             >
               {tag.name}
@@ -160,25 +159,30 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
         </div>
       ) : null}
 
-      <div className="overflow-x-auto rounded-lg border border-[var(--border)]">
-        <table className="w-full text-sm">
-          <thead className="bg-[var(--card)] text-left text-xs uppercase text-[var(--muted)]">
+      <div className="overflow-x-auto rounded-xl border border-[var(--border)]">
+        <table className="w-full text-[13px]">
+          <thead className="bg-[var(--surface)] text-left text-[11px] uppercase tracking-[0.04em] text-[var(--muted)]">
             <tr>
-              <th scope="col" className="px-4 py-3">Slug / title</th>
-              <th scope="col" className="px-4 py-3">Destination</th>
-              <th scope="col" className="px-4 py-3">State</th>
-              <th scope="col" className="px-4 py-3">Organisation</th>
-              <th scope="col" className="px-4 py-3">Clicks</th>
-              <th scope="col" className="px-4 py-3">Created</th>
+              <th scope="col" className="px-5 py-2.5 font-medium">Slug / title</th>
+              <th scope="col" className="px-5 py-2.5 font-medium">Destination</th>
+              <th scope="col" className="px-5 py-2.5 font-medium">State</th>
+              <th scope="col" className="px-5 py-2.5 font-medium">Organisation</th>
+              <th scope="col" className="px-5 py-2.5 text-right font-medium">Clicks</th>
+              <th scope="col" className="px-5 py-2.5 font-medium">Created</th>
             </tr>
           </thead>
           <tbody>
             {visible.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-[var(--muted)]">
-                  {rawQuery || activeTag
-                    ? 'No links match this search or filter.'
-                    : 'No links yet. Create your first short link.'}
+                <td colSpan={6} className="px-5 py-16 text-center">
+                  <p className="text-[14px] font-medium">
+                    {rawQuery || activeTag ? 'No matches' : 'No links yet'}
+                  </p>
+                  <p className="mt-1 text-[13px] text-[var(--muted)]">
+                    {rawQuery || activeTag
+                      ? 'No links match this search or filter.'
+                      : 'Create your first short link to get started.'}
+                  </p>
                 </td>
               </tr>
             ) : null}
@@ -187,22 +191,23 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
               const linkTags = tags.filter((tag) => rel.tag_ids.includes(tag.id));
               const linkFolders = folders.filter((folder) => rel.folder_ids.includes(folder.id));
               return (
-                <tr key={link.id} className="border-t border-[var(--border)] align-top">
-                  <td className="px-4 py-3">
-                    <Link href={`/links/${link.id}`} className="font-medium text-[var(--accent)]">
-                      {link.slug}
+                <tr key={link.id} className="border-t border-[var(--border)] align-top transition-colors hover:bg-[var(--card-hover)]">
+                  <td className="px-5 py-3.5">
+                    <Link
+                      href={`/links/${link.id}`}
+                      title={`${appUrl}/${link.slug}`}
+                      className="font-mono text-[13px] font-medium text-[var(--fg)] underline-offset-4 hover:underline"
+                    >
+                      /{link.slug}
                     </Link>
                     {link.title ? (
-                      <p className="text-xs text-[var(--muted)]">{link.title}</p>
+                      <p className="mt-0.5 truncate text-[12px] text-[var(--muted)]">{link.title}</p>
                     ) : null}
-                    <p className="text-xs text-[var(--muted)] font-mono">
-                      {appUrl}/{link.slug}
-                    </p>
                   </td>
-                  <td className="max-w-xs truncate px-4 py-3 text-[var(--muted)]">
+                  <td className="max-w-xs truncate px-5 py-3.5 font-mono text-[12px] text-[var(--muted)]">
                     {link.destination_url}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-5 py-3.5">
                     <StatusBadge isActive={link.is_active} expiresAt={link.expires_at} now={now} />
                     {link.expires_at ? (
                       <p className="mt-1 text-xs text-[var(--muted)]">
@@ -210,12 +215,12 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
                       </p>
                     ) : null}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-5 py-3.5">
                     <div className="flex flex-wrap gap-1">
                       {linkTags.map((tag) => (
                         <span
                           key={tag.id}
-                          className="rounded-full bg-[var(--card)] px-2 py-0.5 text-xs ring-1 ring-[var(--border)]"
+                          className="rounded border border-[var(--border)] bg-[var(--surface)] px-1.5 py-0.5 text-[11px] text-[var(--muted)]"
                         >
                           #{tag.name}
                         </span>
@@ -223,18 +228,18 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
                       {linkFolders.map((folder) => (
                         <span
                           key={folder.id}
-                          className="rounded-full bg-[var(--card)] px-2 py-0.5 text-xs ring-1 ring-[var(--border)]"
+                          className="rounded border border-[var(--border)] bg-[var(--surface)] px-1.5 py-0.5 text-[11px] text-[var(--muted)]"
                         >
                           {folderNameById.get(folder.id) ?? folder.name}
                         </span>
                       ))}
                       {linkTags.length === 0 && linkFolders.length === 0 ? (
-                        <span className="text-xs text-[var(--muted)]">—</span>
+                        <span className="text-[12px] text-[var(--subtle)]">—</span>
                       ) : null}
                     </div>
                   </td>
-                  <td className="px-4 py-3">{analytics.comparison.current}</td>
-                  <td className="px-4 py-3 text-xs text-[var(--muted)]">
+                  <td className="px-5 py-3.5 text-right tabular-nums">{analytics.comparison.current}</td>
+                  <td className="px-5 py-3.5 text-[12px] text-[var(--muted)]">
                     {formatDate(link.created_at)}
                   </td>
                 </tr>
@@ -244,10 +249,10 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
         </table>
       </div>
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold">Aggregate activity</h2>
+      <section className="space-y-3 border-t border-[var(--border)] pt-7">
+        <h2 className="text-[15px] font-semibold">Aggregate activity</h2>
         <AnalyticsPanel data={analytics} basePath="/dashboard" />
-        <p className="text-xs text-[var(--muted)]">
+        <p className="text-[12px] text-[var(--subtle)]">
           Counts are clicks, not unique visitors. Days are aggregated in UTC.
         </p>
       </section>

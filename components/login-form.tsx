@@ -45,15 +45,19 @@ export default function LoginForm() {
   const urlError = searchParams.get('error');
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form onSubmit={onSubmit} className="space-y-5">
       {urlError ? (
-        <p className="rounded-md bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">{urlError}</p>
+        <p className="rounded-lg border border-[var(--danger)]/25 bg-[var(--danger)]/8 px-3.5 py-3 text-[13px] text-[var(--danger)]">
+          {urlError}
+        </p>
       ) : null}
       {error ? (
-        <p role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">{error}</p>
+        <p role="alert" className="rounded-lg border border-[var(--danger)]/25 bg-[var(--danger)]/8 px-3.5 py-3 text-[13px] text-[var(--danger)]">
+          {error}
+        </p>
       ) : null}
-      <div className="space-y-1">
-        <label htmlFor="email" className="text-sm font-medium">Email</label>
+      <div className="space-y-1.5">
+        <label htmlFor="email" className="block text-[13px] font-medium">Email</label>
         <input
           id="email"
           name="email"
@@ -62,11 +66,11 @@ export default function LoginForm() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-sm"
+          className="input"
         />
       </div>
-      <div className="space-y-1">
-        <label htmlFor="password" className="text-sm font-medium">Password</label>
+      <div className="space-y-1.5">
+        <label htmlFor="password" className="block text-[13px] font-medium">Password</label>
         <input
           id="password"
           name="password"
@@ -75,14 +79,10 @@ export default function LoginForm() {
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-sm"
+          className="input"
         />
       </div>
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full rounded-md bg-[var(--accent)] px-3 py-2 text-sm font-medium text-white disabled:opacity-60"
-      >
+      <button type="submit" disabled={loading} className="btn btn-primary h-10 w-full text-[15px]">
         {loading ? 'Signing in…' : 'Sign in'}
       </button>
     </form>

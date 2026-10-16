@@ -1,25 +1,283 @@
 @import "tailwindcss";
 
+/**
+ * Design tokens.
+ *
+ * Monochrome by default, accent used only for genuinely interactive or
+ * stateful things. A link shortener has no brand colours worth shouting
+ * about, so the interface stays out of the way of the data.
+ *
+ * Both themes are declared as explicit class strategies rather than only as a
+ * media query, so the OS preference is respected by default *and* an explicit
+ * choice can still override it.
+ */
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-card: var(--card);
+  --color-surface: var(--surface);
+  --color-card-hover: var(--card-hover);
+  --color-accent: var(--accent);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
 :root {
-  --bg: #f6f7f9;
-  --fg: #0b1220;
-  --muted: #5b6472;
-  --accent: #2563eb;
+  --bg: #ffffff;
+  --fg: #000000;
+  --muted: #666666;
+  --subtle: #8f8f8f;
+  --border: #ebebeb;
+  --border-strong: #d4d4d4;
   --card: #ffffff;
-  --border: #e3e6ec;
+  --surface: #fafafa;
+  --card-hover: #fafafa;
+  --accent: #0070f3;
+  --danger: #d1373a;
+  --success: #297a3a;
+  --warning: #a56200;
+
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #000000;
+  --fg: #ededed;
+  --muted: #a1a1a1;
+  --subtle: #737373;
+  --border: #2e2e2e;
+  --border-strong: #3d3d3d;
+  --card: #0a0a0a;
+  --surface: #0a0a0a;
+  --card-hover: #111111;
+  --accent: #0070f3;
+  --danger: #ff6369;
+  --success: #4cc38a;
+  --warning: #f5a524;
+
+  color-scheme: dark;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0b1220;
-    --fg: #eef2f9;
-    --muted: #9aa3b2;
-    --accent: #60a5fa;
-    --card: #131a2b;
-    --border: #26304a;
+  :root:not(.light) {
+    --bg: #000000;
+    --fg: #ededed;
+    --muted: #a1a1a1;
+    --subtle: #737373;
+    --border: #2e2e2e;
+    --border-strong: #3d3d3d;
+    --card: #0a0a0a;
+    --surface: #0a0a0a;
+    --card-hover: #111111;
+    --accent: #0070f3;
+    --danger: #ff6369;
+    --success: #4cc38a;
+    --warning: #f5a524;
+
+    color-scheme: dark;
   }
 }
 
-html, body { background: var(--bg); color: var(--fg); }
+html,
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
 
-:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+body {
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  letter-spacing: -0.011em;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  letter-spacing: -0.022em;
+  font-weight: 600;
+}
+
+/* Tabular figures everywhere numbers are compared column-wise. */
+table {
+  font-variant-numeric: tabular-nums;
+}
+
+::selection {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* Keyboard focus must be obvious, mouse focus should not draw a ring. */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* A calmer, theme-aware scrollbar. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border: 3px solid var(--bg);
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+
+/* Motion is a nicety, never a requirement. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Reusable primitives. Components use these so spacing and focus treatment
+   stay identical across the product instead of drifting page by page. */
+@layer components {
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 2.25rem;
+    padding: 0 0.875rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition:
+      background-color 120ms ease,
+      border-color 120ms ease,
+      color 120ms ease,
+      opacity 120ms ease;
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-primary {
+    background: var(--fg);
+    color: var(--bg);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: var(--muted);
+  }
+  .dark .btn-primary:hover:not(:disabled) {
+    opacity: 0.85;
+    background: var(--fg);
+  }
+
+  .btn-secondary {
+    background: var(--bg);
+    color: var(--fg);
+    border-color: var(--border);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    background: var(--card-hover);
+    border-color: var(--border-strong);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+  }
+  .btn-ghost:hover:not(:disabled) {
+    background: var(--card-hover);
+    color: var(--fg);
+  }
+
+  .input {
+    height: 2.25rem;
+    width: 100%;
+    padding: 0 0.75rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+    font-size: 0.875rem;
+    transition:
+      border-color 120ms ease,
+      box-shadow 120ms ease;
+  }
+  .input::placeholder {
+    color: var(--subtle);
+  }
+  .input:focus {
+    outline: none;
+    border-color: var(--fg);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--fg) 10%, transparent);
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  .surface {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  .link {
+    color: var(--fg);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--border-strong);
+    transition: text-decoration-color 120ms ease;
+  }
+  .link:hover {
+    text-decoration-color: var(--fg);
+  }
+
+  .prose-muted {
+    color: var(--muted);
+    line-height: 1.65;
+  }
+}
