@@ -193,7 +193,7 @@ export default async function LinkDetailPage({ params, searchParams }: PageProps
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">Analytics</h2>
-        <AnalyticsPanel data={analytics} basePath={`/links/${id}`} linkId={id} />
+        <AnalyticsPanel data={analytics} basePath={`/links/${id}`} />
       </section>
 
       <section className="space-y-3">

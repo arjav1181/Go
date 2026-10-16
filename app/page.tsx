@@ -103,17 +103,10 @@ export default function HomePage() {
             </p>
 
             <div className="mt-10 flex flex-wrap items-center gap-3">
-              <Link href="/login" className="btn btn-primary btn-lg">
-                Owner sign in
-              </Link>
-              <Link href="/docs" className="btn btn-secondary btn-lg">
+              <Link href="/docs" className="btn btn-primary btn-lg">
                 Read the docs
               </Link>
             </div>
-
-            <p className="mt-6 text-label-13 text-tertiary">
-              Access is restricted to an explicit email allowlist. There is no public sign-up.
-            </p>
           </div>
         </Container>
       </section>
@@ -249,16 +242,13 @@ export default function HomePage() {
         </Container>
       </section>
 
-      {/* CTA */}
+      {/* Closing note */}
       <Container className="py-24 text-center">
-        <h2 className="text-heading-32 text-primary">Owner access</h2>
-        <p className="mx-auto mt-4 max-w-md text-copy-14 text-secondary">
-          Sign-in is restricted to an explicit email allowlist. If you are not on it, there is
-          nothing to sign up for.
+        <h2 className="text-heading-32 text-primary">Private by construction</h2>
+        <p className="mx-auto mt-4 max-w-lg text-copy-14 text-secondary">
+          There is no public sign-up. Accounts are restricted to an explicit allowlist, and the
+          service stores nothing that could identify who visited a link.
         </p>
-        <Link href="/login" className="btn btn-primary btn-lg mt-8">
-          Sign in
-        </Link>
       </Container>
     </>
   );

@@ -25,7 +25,6 @@ export default function AppShell({
       ]
     : [{ href: '/login', label: 'Sign in' }];
 
-  const isMarketing = pathname === '/' || pathname === '/privacy' || pathname === '/terms' || pathname === '/docs';
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -81,10 +80,6 @@ export default function AppShell({
                   </button>
                 </form>
               </>
-            ) : isMarketing ? (
-              <Link href="/login" className="btn btn-primary">
-                Sign in
-              </Link>
             ) : null}
           </div>
         </div>
