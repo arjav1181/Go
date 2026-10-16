@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Detailed public-facing functional specification of Bitly links, QR Codes, Pages, campaigns, analytics, domains, pricing, API, integrations, security, and behavior, with product screenshots and source links.">
+<title>Bitly — Detailed Product Specification Sheet</title>
+<style>
+:root{--ink:#172033;--muted:#637087;--line:#dce3ed;--soft:#f5f7fb;--blue:#2d5be3;--blue2:#eaf0ff;--cyan:#13a6b2;--gold:#946200;--goldbg:#fff5d9;--green:#147b56;--greenbg:#e8f7f0;--red:#a53636;--redbg:#fff0ef;--nav:#111827;--white:#fff;--shadow:0 12px 35px rgba(19,32,59,.08)}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:24px}body{margin:0;background:#edf1f7;color:var(--ink);font:15px/1.65 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:#2453c7;text-decoration:none}a:hover{text-decoration:underline}img{max-width:100%;height:auto}code,pre,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}code{background:#f0f3f8;padding:.12em .32em;border-radius:5px;font-size:.92em;overflow-wrap:anywhere}pre{overflow:auto;padding:18px;background:#111827;color:#e8eefc;border-radius:12px;font-size:13px;line-height:1.6}table{border-collapse:separate;border-spacing:0;width:100%;font-size:13.5px;margin:16px 0 22px;border:1px solid var(--line);border-radius:11px;overflow:hidden}th,td{text-align:left;vertical-align:top;padding:10px 11px;border-bottom:1px solid var(--line);border-right:1px solid var(--line)}th:last-child,td:last-child{border-right:0}tr:last-child td{border-bottom:0}thead th{background:#eff3fb;color:#2a3850;font-weight:750;position:relative}tbody tr:nth-child(even) td{background:#fafbfd}.wrap{max-width:1540px;margin:0 auto;display:grid;grid-template-columns:260px minmax(0,1fr);gap:22px;padding:22px}.side{position:sticky;top:16px;align-self:start;max-height:calc(100vh - 32px);overflow:auto;background:var(--nav);color:#d6deeb;border-radius:18px;padding:22px 17px;box-shadow:var(--shadow)}.brand{display:flex;gap:11px;align-items:center;margin-bottom:18px}.brand-mark{width:39px;height:39px;display:grid;place-items:center;border-radius:12px;background:#2d5be3;color:white;font-weight:900;font-size:20px}.brand strong{display:block;font-size:15px;color:white;letter-spacing:.01em}.brand small{color:#8e9ab0;font-size:11px}.navlabel{margin:20px 10px 7px;font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:#8290a8;font-weight:800}.side a{display:block;padding:7px 10px;border-radius:8px;color:#c8d2e2;font-size:12.5px;line-height:1.45;margin:2px 0}.side a:hover{background:#212d43;text-decoration:none;color:white}.side .note{font-size:11px;line-height:1.55;color:#9eabc0;border-top:1px solid #2c374b;padding-top:14px;margin-top:20px}.content{min-width:0}.hero{background:linear-gradient(115deg,#121d34 0%,#1d3771 58%,#2d5be3 100%);color:white;border-radius:20px;overflow:hidden;padding:42px 44px 35px;position:relative;box-shadow:var(--shadow)}.hero:after{content:"";position:absolute;width:360px;height:360px;border-radius:50%;border:1px solid rgba(255,255,255,.16);right:-80px;top:-125px;box-shadow:0 0 0 42px rgba(255,255,255,.04),0 0 0 90px rgba(255,255,255,.025)}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:#b9ccff;font-weight:850}.hero h1{font-size:clamp(33px,4.6vw,58px);line-height:1.04;letter-spacing:-.045em;margin:13px 0 18px;max-width:850px}.hero p{color:#e3eaff;max-width:800px;font-size:16px;margin:0 0 20px}.chips{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0 0}.chip{padding:5px 9px;border-radius:99px;border:1px solid rgba(255,255,255,.23);font-size:11px;color:#eaf0ff;background:rgba(255,255,255,.07)}.hero-foot{position:relative;z-index:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:30px}.hero-stat{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:13px}.hero-stat b{display:block;font-size:23px;line-height:1.2}.hero-stat span{font-size:11px;color:#cfdbf4}.panel{background:white;border:1px solid #e1e6ef;border-radius:17px;padding:29px 31px;margin-top:20px;box-shadow:0 7px 24px rgba(19,32,59,.035);min-width:0}.panel h2{font-size:25px;letter-spacing:-.025em;margin:0 0 7px;line-height:1.25}.panel h3{font-size:18px;letter-spacing:-.012em;margin:24px 0 8px}.panel h4{font-size:14px;margin:17px 0 5px}.lead{color:#59677c;font-size:15px;margin:0 0 19px}.kicker{font-weight:800;color:var(--blue);font-size:10px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:7px}.callout{margin:15px 0;padding:13px 15px;border-radius:10px;background:var(--blue2);border-left:3px solid var(--blue);color:#24385e;font-size:13px}.callout.warn{background:var(--goldbg);border-color:#d4a42d;color:#5d4712}.callout.ok{background:var(--greenbg);border-color:#2ca374;color:#14523d}.callout.danger{background:var(--redbg);border-color:#cc5353;color:#6f2323}.pill{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;border-radius:5px;padding:3px 6px;vertical-align:middle;margin-right:5px}.pill.v{background:var(--greenbg);color:var(--green)}.pill.l{background:var(--blue2);color:#2349a8}.pill.c{background:var(--goldbg);color:#775000}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.mini{border:1px solid var(--line);border-radius:12px;padding:15px;background:#fbfcfe}.mini h4{margin:0 0 6px;font-size:14px}.mini p{margin:0;color:#536178;font-size:13px}.shot-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:18px 0}.shot{margin:0;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:#fff;box-shadow:0 5px 18px rgba(19,32,59,.05);min-width:0}.shot .image{background:#f1f4f8;min-height:190px;display:flex;align-items:center;justify-content:center;overflow:hidden}.shot img{display:block;width:100%;max-height:475px;object-fit:contain;background:#f1f4f8}.shot figcaption{padding:12px 14px 14px;font-size:12px;color:#59677c;line-height:1.5}.shot figcaption strong{display:block;font-size:13px;color:#1a2740;margin-bottom:4px}.shot .sourcelink{display:inline-block;margin-top:5px;font-weight:650}.taglist{display:flex;flex-wrap:wrap;gap:6px}.tag{padding:5px 8px;border:1px solid var(--line);border-radius:7px;background:#fafbfe;font-size:12px}.flow{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;margin:16px 0}.flow .step{flex:1;min-width:140px;padding:14px 13px;border:1px solid var(--line);border-radius:11px;background:#fbfcff}.flow .step b{display:block;font-size:12px;margin-bottom:5px}.flow .step span{color:#5b6880;font-size:12px}.flow .arrow{display:grid;place-items:center;color:#73829c;font-size:20px;padding:0 2px}.fieldlist{display:grid;grid-template-columns:200px minmax(0,1fr);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:12px 0}.fieldlist div{padding:9px 11px;border-bottom:1px solid var(--line);font-size:13px}.fieldlist div:nth-child(odd){background:#f5f7fb;font-weight:700;color:#27344b}.fieldlist div:nth-last-child(-n+2){border-bottom:0}.source-list li{margin:8px 0;overflow-wrap:anywhere}.muted{color:var(--muted)}.small{font-size:12px}.foot{color:#6d788b;font-size:11px;text-align:center;padding:28px 10px}.badgeok{color:#13764d;background:#e5f7ee;border:1px solid #b6e8d1;padding:2px 6px;border-radius:5px}.badgewarn{color:#7b5200;background:#fff4d7;border:1px solid #f2d788;padding:2px 6px;border-radius:5px}.searchbox{display:flex;gap:8px;margin:14px 0 0}.searchbox input{width:100%;padding:11px 13px;border:1px solid #34415a;border-radius:9px;background:#172238;color:white;font:inherit;font-size:12px}.searchbox input::placeholder{color:#a7b4ca}.no-results{display:none;padding:12px;background:var(--goldbg);border-radius:9px;margin-top:10px;color:#704e04}.topline{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;margin-bottom:20px}.topline .actions{display:flex;gap:8px;flex-wrap:wrap}.btn{font:inherit;font-size:12px;border:1px solid var(--line);padding:8px 11px;border-radius:8px;background:white;color:var(--ink);cursor:pointer}.btn:hover{background:#f4f7fc}.section-number{color:#9aabc3;font-size:12px;font-weight:800;margin-right:8px}.endpoint{margin:8px 0;display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}.method{padding:3px 7px;border-radius:5px;color:white;background:#147b56;font-size:10px;font-weight:850;min-width:47px;text-align:center}.method.patch{background:#946200}.method.get{background:#2453c7}.method.delete{background:#b13c3c}.endpoint code{font-size:12px}.break{overflow-wrap:anywhere;word-break:break-word}details{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:10px 0;background:#fcfdff}summary{cursor:pointer;font-weight:750;font-size:13px}details p,details li{font-size:13px}.source-id{font-size:10px;color:#7d899c}.subtitle{font-size:11px;color:#8792a5;text-transform:uppercase;letter-spacing:.08em;font-weight:800}
+@media(max-width:1040px){.wrap{grid-template-columns:1fr;padding:12px}.side{position:static;max-height:none}.side nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px}.navlabel{grid-column:1/-1}.hero{padding:30px 25px}.panel{padding:24px 21px}.hero-foot{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){body{font-size:14px}.wrap{padding:7px}.side{padding:15px}.side nav{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{border-radius:15px;padding:25px 19px}.hero h1{font-size:36px}.hero-foot{gap:7px}.hero-stat b{font-size:20px}.panel{padding:20px 15px;margin-top:12px;border-radius:13px}.panel h2{font-size:22px}.grid,.grid3,.shot-grid{grid-template-columns:1fr}.fieldlist{grid-template-columns:125px minmax(0,1fr)}table{display:block;overflow-x:auto;white-space:normal}.flow .arrow{transform:rotate(90deg);flex-basis:100%;height:8px}.shot .image{min-height:120px}}
+@media print{body{background:#fff;font-size:11px}.wrap{display:block;max-width:none;padding:0}.side,.searchbox,.actions{display:none!important}.hero{border-radius:0;box-shadow:none;padding:25px;background:#182b54!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.panel{box-shadow:none;border:0;border-radius:0;padding:18px 0;margin:0;border-bottom:1px solid #ccc;break-inside:auto}.shot{break-inside:avoid;box-shadow:none}.shot-grid{grid-template-columns:repeat(2,minmax(0,1fr))}table{font-size:10px}thead{display:table-header-group}tr{break-inside:avoid}.hero-foot{grid-template-columns:repeat(4,minmax(0,1fr))}a{color:#172033;text-decoration:none}.foot{padding:12px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<aside class="side">
+  <div class="brand"><div class="brand-mark">b</div><div><strong>Bitly Specification</strong><small>Public product reference · v1.0</small></div></div>
+  <div class="searchbox"><input id="sectionSearch" type="search" placeholder="Find a spec, screen, feature…" aria-label="Search specification sections"></div>
+  <div class="navlabel">Reference sections</div>
+  <nav id="sectionNav">
+    <a href="#overview">01 · Product overview</a><a href="#screenshots">02 · Screenshots</a><a href="#navigation">03 · Navigation & UX</a><a href="#links">04 · Short links</a><a href="#redirects">05 · Redirect behavior</a><a href="#qr">06 · QR Codes</a><a href="#pages">07 · Bitly Pages</a><a href="#campaigns">08 · Campaigns & UTM</a><a href="#analytics">09 · Analytics & reports</a><a href="#domains">10 · Custom domains</a><a href="#accounts">11 · Accounts & teams</a><a href="#pricing">12 · Plans & quotas</a><a href="#api">13 · API reference</a><a href="#integrations">14 · Integrations & AI</a><a href="#security">15 · Security & privacy</a><a href="#states">16 · States & edge cases</a><a href="#unknowns">17 · Publicly unknown details</a><a href="#sources">18 · Source register</a>
+  </nav>
+  <div class="note">Prepared from public Bitly product, support, pricing, and developer documentation reviewed on <b>16 October 2026</b>. Product screenshots are sourced from public Bitly help/marketing pages or identified third-party articles and may represent different UI capture dates.</div>
+</aside>
+<main class="content">
+<header class="hero" id="top">
+  <div class="eyebrow">Product reference · Full feature inventory</div>
+  <h1>Bitly<br>Detailed Specification Sheet</h1>
+  <p>A screen-by-screen and behavior-by-behavior reference for Bitly’s public product: short links, destination redirects, QR Codes, landing pages, campaigns, analytics, custom domains, team workspaces, plans, API, integrations, and trust controls.</p>
+  <div class="chips"><span class="chip">Links</span><span class="chip">QR Codes</span><span class="chip">Pages</span><span class="chip">Campaigns</span><span class="chip">Analytics</span><span class="chip">API v4</span><span class="chip">Custom domains</span><span class="chip">Security & governance</span></div>
+  <div class="hero-foot"><div class="hero-stat"><b>5</b><span>Public standard plan levels</span></div><div class="hero-stat"><b>4</b><span>Core product families</span></div><div class="hero-stat"><b>v4</b><span>Public REST API version</span></div><div class="hero-stat"><b>18</b><span>Specification sections</span></div></div>
+</header>
+
+<section class="panel searchable" id="overview">
+  <div class="kicker">01 · Product overview</div><h2>Product definition and scope</h2>
+  <p class="lead">Bitly is a link-management and engagement platform, not just a URL shortening endpoint. Its connected products cover short URLs, managed QR Codes, shareable mini-sites, campaign organization, event analytics, custom domains, and developer access.</p>
+  <div class="grid3">
+    <div class="mini"><h4>Bitly Links</h4><p>Shorten long web URLs; use generated or custom back-halves; organize and update destinations; measure clicks; connect QR Codes, tags, campaigns, domains, and pages.</p></div>
+    <div class="mini"><h4>Bitly Codes</h4><p>Create QR Codes for URLs, Bitlinks, pages, and supported static data. Customize visual appearance; export files; measure scans for managed codes.</p></div>
+    <div class="mini"><h4>Bitly Pages</h4><p>Publish mobile-friendly landing pages / link-in-bio pages from templates or a blank page, with editable blocks, scheduled content, themes, and engagement reporting.</p></div>
+    <div class="mini"><h4>Campaigns</h4><p>Group campaign links by distribution channel and apply UTM tagging so activity can be compared between channels.</p></div>
+    <div class="mini"><h4>Analytics</h4><p>Aggregate engagements by time, referrer, geography, device, asset, page, and campaign where the plan supports the report.</p></div>
+    <div class="mini"><h4>Platform & API</h4><p>Browser app, mobile apps, browser extensions, API v4, integrations, team administration, custom domains, and Enterprise governance.</p></div>
+  </div>
+  <h3>Primary object model</h3>
+  <table><thead><tr><th>Object</th><th>Purpose</th><th>Relationships / notable behavior</th></tr></thead><tbody>
+  <tr><td><b>Link / Bitlink</b></td><td>Stable short URL pointing to a destination</td><td>Has domain + path, destination, title/metadata, group, timestamps, status, optional expiration, tags, campaign/page/QR relationships, engagement.</td></tr>
+  <tr><td><b>Custom back-half</b></td><td>Readable custom path after a short domain</td><td>Case-sensitive; cannot duplicate the exact same path under the same domain.</td></tr>
+  <tr><td><b>Branded short domain</b></td><td>Customer-owned domain for short links</td><td>Must be configured and verified; the domain used for links is distinct from the customer’s main content website domain.</td></tr>
+  <tr><td><b>QR Code</b></td><td>Encoded content in a scannable symbol</td><td>Static code stores content directly; a managed/dynamic code can resolve through a Bitly-controlled destination and support tracking/customization.</td></tr>
+  <tr><td><b>Page</b></td><td>Published mobile-friendly landing page</td><td>Composed of ordered blocks; may contain links, images, video, social icons, contact card, and other supported elements.</td></tr>
+  <tr><td><b>Campaign / channel</b></td><td>Groups campaign links and compares channels</td><td>Campaign has at least one channel; channels add a distribution dimension and UTM source values.</td></tr>
+  <tr><td><b>Group</b></td><td>Permission and asset boundary for organizations</td><td>Can have its own users, links, QR Codes, Pages, and custom domains on eligible Enterprise subscriptions.</td></tr>
+  </tbody></table>
+  <div class="callout"><span class="pill v">Documented</span> This document describes publicly observable functionality and documented API behavior. Where Bitly does not publish a private implementation detail, it is explicitly treated as unknown rather than stated as fact.</div>
+</section>
+
+<section class="panel searchable" id="screenshots">
+  <div class="kicker">02 · Visual reference</div><h2>Public product screenshots</h2><p class="lead">Screenshots are included as direct public image references so this HTML stays as a single file. The image URLs load when the HTML is opened with internet access. Each card links to its source or related help page.</p>
+  <div class="callout warn">Screenshot date and UI layout vary by help article. These images document real product screens but should not be treated as a pixel-perfect guarantee of the current account UI. Product screenshot copyrights remain with their respective owners.</div>
+  <div class="shot-grid">
+    <figure class="shot"><div class="image"><img loading="lazy" src="https://cdn.setapp.com/blog/images/bitly-personal-account.webp" alt="Bitly Links list dashboard showing sidebar, search and filters"></div><figcaption><strong>Screenshot 01 · Links list and navigation</strong>Links view with sidebar modules, search/filter controls, selection tools, link destination, short URL, link detail access, and actions. Source: third-party product review.<br><a class="sourcelink" href="https://setapp.com/app-reviews/best-url-shorteners" target="_blank" rel="noopener">Open source article ↗</a></figcaption></figure>
+    <figure class="shot"><div class="image"><img loading="lazy" src="https://bitly.com/blog/wp-content/uploads/2024/01/Bitly-Analytics-default-dashboard.png" alt="Bitly analytics dashboard with clicks and scans by referrer and location"></div><figcaption><strong>Screenshot 02 · Analytics overview</strong>Aggregated click and scan analytics with time-based activity, referrer mix, geography, and table-like breakdowns. Source: Bitly blog.<br><a class="sourcelink" href="https://bitly.com/blog/marketing-roi-with-bitly-analytics/" target="_blank" rel="noopener">Open Bitly article ↗</a></figcaption></figure>
+    <figure class="shot"><div class="image"><img loading="lazy" src="https://support.bitly.com/hc/article_attachments/30730510711181" alt="Bitly link engagement analytics with chart, locations, referrers and devices"></div><figcaption><strong>Screenshot 03 · Link engagement detail</strong>Engagements over time, location results, referrers, device breakdown, and date range. Source: official Bitly Support.<br><a class="sourcelink" href="https://support.bitly.com/hc/en-us/articles/230905028-How-do-I-view-engagement-data-for-a-specific-link" target="_blank" rel="noopener">Open support article ↗</a></figcaption></figure>
+    <figure class="shot"><div class="image"><img loading="lazy" src="https://support.bitly.com/hc/article_attachments/31230896370189" alt="Bitly QR Code designer customization controls and code preview"></div><figcaption><strong>Screenshot 04 · QR Code design editor</strong>Pattern selector, corner choices, color inputs, design save action, and live preview of the QR Code. Source: official Bitly Support.<br><a class="sourcelink" href="https://support.bitly.com/hc/en-us/articles/360030557072-How-do-I-create-a-QR-Code-in-Bitly" target="_blank" rel="noopener">Open QR creation article ↗</a></figcaption></figure>
+    <figure class="shot"><div class="image"><img loading="lazy" src="https://support.bitly.com/hc/article_attachments/43448591395213" alt="Bitly QR Code advanced settings with UTM parameters and code expiration"></div><figcaption><strong>Screenshot 05 · QR advanced settings and expiration</strong>Advanced settings for UTM parameters and code expiration; the screen explains what happens after expiry. Source: official Bitly Support.<br><a class="sourcelink" href="https://support.bitly.com/hc/en-us/articles/43445764258957" target="_blank" rel="noopener">Open expiration article ↗</a></figcaption></figure>
+    <figure class="shot"><div class="image"><img loading="lazy" src="https://support.bitly.com/hc/article_attachments/13800562508429" alt="Bitly campaign analytics with channels and total engagement chart"></div><figcaption><strong>Screenshot 06 · Campaign and channel analytics</strong>Campaign total engagement, channel counts, side-by-side channel performance, and engagement charts. Source: official Bitly Support.<br><a class="sourcelink" href="https://support.bitly.com/hc/en-us/articles/115001195267-What-type-of-campaign-analytics-are-available" target="_blank" rel="noopener">Open campaign analytics article ↗</a></figcaption></figure>
+    <figure class="shot"><div class="image"><img loading="lazy" src="https://support.bitly.com/hc/article_attachments/10455995903757" alt="Bitly Add a domain screen for branded short domains"></div><figcaption><strong>Screenshot 07 · Custom domain onboarding</strong>Domain entry, 32-character display, whether the domain already hosts a website, and a three-stage add-domain flow. Source: official Bitly Support.<br><a class="sourcelink" href="https://support.bitly.com/hc/en-us/articles/360025607351-How-do-I-add-my-own-custom-domain-to-Bitly" target="_blank" rel="noopener">Open custom-domain guide ↗</a></figcaption></figure>
+    <figure class="shot"><div class="image"><img loading="lazy" src="https://support.bitly.com/hc/article_attachments/34413809165197" alt="Bitly Page editor with content list and public mobile preview"></div><figcaption><strong>Screenshot 08 · Bitly Page build/design editor</strong>Page content list, edit actions, scheduling controls, and a mobile preview of the published-style page. Source: official Bitly Support.<br><a class="sourcelink" href="https://support.bitly.com/hc/en-us/articles/12168810779917" target="_blank" rel="noopener">Open page design guide ↗</a></figcaption></figure>
+    <figure class="shot"><div class="image"><img loading="lazy" src="https://support.bitly.com/hc/article_attachments/33887638466701" alt="Bitly Page template selection screen showing sample page templates"></div><figcaption><strong>Screenshot 09 · Page template selection</strong>Template cards, use-case categories, a blank-page option, and mobile landing-page examples. Source: official Bitly Support.<br><a class="sourcelink" href="https://support.bitly.com/hc/en-us/articles/11513559140109-How-do-I-create-a-Bitly-Page" target="_blank" rel="noopener">Open create-page guide ↗</a></figcaption></figure>
+    <figure class="shot"><div class="image"><img loading="lazy" src="https://support.bitly.com/hc/article_attachments/30730527711629" alt="Bitly Pages build editor with link and image blocks and mobile preview"></div><figcaption><strong>Screenshot 10 · Page blocks and layout</strong>Ordered page blocks, link cards, media content, add-content workflow, and a public-page preview. Source: official Bitly Support.<br><a class="sourcelink" href="https://support.bitly.com/hc/en-us/articles/12128171762061" target="_blank" rel="noopener">Open page-content guide ↗</a></figcaption></figure>
+    <figure class="shot"><div class="image"><img loading="lazy" src="https://support.bitly.com/hc/article_attachments/34445446004237" alt="Bitly Page engagement summary and analytics preview alongside mobile page preview"></div><figcaption><strong>Screenshot 11 · Page engagement snapshot</strong>Page engagement total, date window, views over time, link activity, and a page preview. Source: official Bitly Support.<br><a class="sourcelink" href="https://support.bitly.com/hc/en-us/articles/12170727169421" target="_blank" rel="noopener">Open page analytics guide ↗</a></figcaption></figure>
+    <figure class="shot"><div class="image"><img loading="lazy" src="https://support.bitly.com/hc/article_attachments/30730510982285" alt="Bitly Page template gallery with mobile landing page examples"></div><figcaption><strong>Screenshot 12 · Page template gallery</strong>Example templates for bios, products/services, and promotions. Source: official Bitly Support.<br><a class="sourcelink" href="https://support.bitly.com/hc/en-us/articles/11513559140109-How-do-I-create-a-Bitly-Page" target="_blank" rel="noopener">Open create-page guide ↗</a></figcaption></figure>
+  </div>
+</section>
+
+<section class="panel searchable" id="navigation">
+  <div class="kicker">03 · Screens and interaction patterns</div><h2>Navigation, list views, and shared UI behavior</h2>
+  <h3>Core navigation</h3>
+  <table><thead><tr><th>Navigation item</th><th>Primary purpose</th><th>Common controls / information</th></tr></thead><tbody>
+  <tr><td>Home</td><td>Account overview and quick creation</td><td>Quick create, usage meters, recent assets, setup/onboarding, analytics summary, upgrades and relevant product entry points.</td></tr>
+  <tr><td>Links</td><td>Search and manage short links</td><td>Search; created-date filters; other filters; select rows; export; hide/archive or tag selected links; open details; create QR Code; copy URL; link status and engagement count.</td></tr>
+  <tr><td>QR Codes</td><td>Manage QR Codes / Codes</td><td>Search; filter by created date, code type, creator, attached link, expiration status; preview/design; download; inspect scan data.</td></tr>
+  <tr><td>Pages</td><td>Create/manage mobile landing pages</td><td>Page list, edit, preview, Build/Design/Track, add blocks, scheduling, public publish state and analytics.</td></tr>
+  <tr><td>Campaigns</td><td>Organize campaign links by channel</td><td>Campaign list, channel detail, link lists, UTM tracking, campaign/channel analytics.</td></tr>
+  <tr><td>Analytics</td><td>Aggregate performance reports</td><td>Date and asset filters, configurable modules, chart type, export/download on eligible tiers, save module configuration.</td></tr>
+  <tr><td>Custom domains</td><td>Configure branded short domains</td><td>Add domain, domain status, groups, DNS setup/verification, domain root router, 404 error fixer where available.</td></tr>
+  <tr><td>Settings</td><td>Account, usage, access, and preferences</td><td>Profile/security, groups/users, subscription/billing/usage, default QR Code logo, API/integration settings and related preferences.</td></tr>
+  </tbody></table>
+  <h3>Shared interaction pattern inventory</h3>
+  <div class="grid">
+    <div class="mini"><h4>Search and filters</h4><p>Global search is available across the app except in settings. Link/QR search matches URL, short URL, title; search/filter scope follows the active group.</p></div>
+    <div class="mini"><h4>Bulk selection</h4><p>Selected links can be managed in bulk where the action and subscription allow it. Selective link export is limited to 100 links per export in the cited help guide.</p></div>
+    <div class="mini"><h4>More-actions menus</h4><p>Existing assets expose context-dependent actions such as edit, share, expiry, copy, duplicate design, add to page, export, or status controls.</p></div>
+    <div class="mini"><h4>Draft vs published</h4><p>Page changes persist as a draft; public changes do not go live until “Publish changes” is selected.</p></div>
+    <div class="mini"><h4>Scheduling controls</h4><p>Bitly Pages content blocks may be scheduled to appear and/or unpublish at a selected date/time. Scheduled or disabled page links are not shown in the public preview.</p></div>
+    <div class="mini"><h4>Usage and upgrade messaging</h4><p>Creation quotas and plan-locked capabilities are exposed through usage views and in-product upgrade prompts; limits are separate from click/scan traffic limits.</p></div>
+  </div>
+  <h3>Export behaviors</h3>
+  <ul><li>Link list exports include link, custom link (if used), created date, title, destination URL, engagements for the available plan window, and status.</li><li>For selective exports, the documented maximum is up to 100 links at a time; selected-list exports include Bitlink, custom Bitlink, long URL, clicks, and status.</li><li>Large full-account link exports are emailed; the support article warns large exports can take up to 30 minutes.</li></ul>
+  <p class="small muted">Sources: <a href="https://support.bitly.com/hc/en-us/articles/33730560094733-How-do-I-find-QR-Codes-in-my-account" target="_blank" rel="noopener">QR search/filtering</a>, <a href="https://support.bitly.com/hc/en-us/articles/230631767-How-do-I-export-link-data-for-a-select-group-of-links" target="_blank" rel="noopener">selected link export</a>, <a href="https://support.bitly.com/hc/en-us/articles/115000268051-How-do-I-export-all-data-from-the-Links-page" target="_blank" rel="noopener">full link export</a>, <a href="https://support.bitly.com/hc/en-us/articles/12128171762061" target="_blank" rel="noopener">Page publishing and scheduling</a>.</p>
+</section>
+
+<section class="panel searchable" id="links">
+  <div class="kicker">04 · Link management</div><h2>Short-link creation, fields, slugs, and lifecycle</h2>
+  <h3>Link creation form — field inventory</h3>
+  <table><thead><tr><th>Field / capability</th><th>Purpose</th><th>Availability / constraints</th></tr></thead><tbody>
+  <tr><td>Destination URL</td><td>Required long URL to shorten</td><td>Normal URL shortening is for web destinations; use valid URL syntax and safe schemes.</td></tr>
+  <tr><td>Domain selector</td><td>Choose default Bitly domain or authorized branded short domain</td><td>Custom domains require eligible subscription and correct domain configuration.</td></tr>
+  <tr><td>Custom back-half</td><td>Choose the readable path after the domain</td><td>Maximum 255 characters; allowed characters are letters, digits, hyphen, underscore; case-sensitive; exact duplicates are disallowed.</td></tr>
+  <tr><td>Title</td><td>Internal label for asset identification and search</td><td>Optional metadata; not the redirect destination.</td></tr>
+  <tr><td>Tags</td><td>Organize assets for search and list filtering</td><td>Useful for grouping assets and bulk-upload tracking.</td></tr>
+  <tr><td>UTM parameters</td><td>Append campaign measurement parameters</td><td>Dedicated builder is available on eligible plans; fields may include source, medium, campaign and optional content/term.</td></tr>
+  <tr><td>Campaign/channel</td><td>Associate the link with a reporting campaign and distribution channel</td><td>Campaign functionality is plan-dependent.</td></tr>
+  <tr><td>Expiration</td><td>Set scheduled end date/time</td><td>Some paid plans; support currently documents minimum 5 minutes and maximum 1 year from now.</td></tr>
+  <tr><td>Advanced routing</td><td>Send supported audiences to specific destinations or mobile-app links</td><td>Routing/deep-link capabilities are plan-dependent and not included on all tiers.</td></tr>
+  <tr><td>Create QR Code</td><td>Create a managed code associated with the link</td><td>Consumes asset quota according to product/account rules.</td></tr>
+  </tbody></table>
+  <h3>Custom back-half syntax</h3>
+  <div class="fieldlist"><div>Maximum length</div><div><code>255</code> characters.</div><div>Allowed characters</div><div><code>A–Z</code>, <code>a–z</code>, <code>0–9</code>, hyphen <code>-</code>, underscore <code>_</code>.</div><div>Disallowed examples</div><div>Spaces, slashes, periods, colons, percent signs, query/hash separators, brackets, many punctuation/symbol characters.</div><div>Case behavior</div><div>Case-sensitive. The same exact custom back-half cannot be reused; capitalization variants may be treated as separate links.</div><div>Uniqueness</div><div>Custom slug must be unique under the chosen domain; conflicts require a different back-half or domain.</div></div>
+  <div class="callout"><span class="pill v">Documented</span> Bitly links are case-sensitive. Its support guide specifies the supported back-half characters and a 255-character limit. <a href="https://support.bitly.com/hc/en-us/articles/360030780892-What-characters-are-supported-when-customizing-links" target="_blank" rel="noopener">Character support reference ↗</a></div>
+  <h3>Link list details and controls</h3>
+  <div class="grid">
+    <div class="mini"><h4>Searchable fields</h4><p>Destination URL, short link/back-half, and title; global search can be used from multiple app sections.</p></div>
+    <div class="mini"><h4>Filtering</h4><p>Creation date and additional link filters. Filters are applied within the current active group.</p></div>
+    <div class="mini"><h4>Metadata</h4><p>Short link, destination, title, creation details, status, optional tags/custom link, and engagement counts.</p></div>
+    <div class="mini"><h4>Editing and redirect</h4><p>Changing the destination is distinct from editing metadata. Destination redirect actions use separate plan quotas in the pricing comparison.</p></div>
+    <div class="mini"><h4>QR association</h4><p>A QR Code can use an existing Bitlink as its destination, which makes redirecting the short link useful for printed material.</p></div>
+    <div class="mini"><h4>Old destination / link history</h4><p>Bitly’s public best-practice guide says older versions can continue to work after a link is edited; multiple short URLs can point to the same destination.</p></div>
+  </div>
+  <h3>Creation and metadata semantics</h3>
+  <ul><li>Bitly’s public shorten endpoint accepts a required <code>long_url</code>, an optional <code>domain</code> (default <code>bit.ly</code>), <code>group_guid</code>, and <code>force_new_link</code>.</li><li>The link identifier returned by the API includes the domain and short code; a short URL is not merely a text transformation—the system maintains a destination mapping.</li><li>The public API distinguishes link creation/shortening, reading existing links, expanding a short link to a long URL, and changing an existing destination.</li><li>Destination edits, link/QR expiration, branded-domain availability, and link quotas are separate lifecycle/entitlement dimensions.</li></ul>
+</section>
+
+<section class="panel searchable" id="redirects">
+  <div class="kicker">05 · Redirect and lifecycle behavior</div><h2>Redirects, destination updates, expiration, and status</h2>
+  <div class="flow"><div class="step"><b>1 · Receive request</b><span>Visitor opens short URL on Bitly or a branded domain.</span></div><div class="arrow">→</div><div class="step"><b>2 · Resolve identifier</b><span>Domain + short path resolve to a saved Bitlink.</span></div><div class="arrow">→</div><div class="step"><b>3 · Check state</b><span>Destination, expiry and link status determine the response.</span></div><div class="arrow">→</div><div class="step"><b>4 · Redirect / show page</b><span>Send visitor to destination or display an expired/blocked/not-found state.</span></div></div>
+  <table><thead><tr><th>Condition</th><th>Publicly documented / observed behavior</th><th>Notes</th></tr></thead><tbody>
+  <tr><td>Active valid Bitlink</td><td>Redirects to saved destination</td><td>Destination may be edited on eligible plans; clicks continue to accumulate against the managed link/asset.</td></tr>
+  <tr><td>Destination edited</td><td>Redirect target changes while using a short-link identity</td><td>Bitly’s support best-practice page says older versions can continue to work after editing; redirect changes have plan quotas.</td></tr>
+  <tr><td>Expired link or code</td><td>Redirects to Bitly’s 410 page or custom error page, depending on configuration</td><td>Historical analytics remains; new engagement stops. An expired link can be reactivated; the help page says it cannot be deleted while expired.</td></tr>
+  <tr><td>QR tied to an expiring link</td><td>QR Code inherits the same expiration and stops working when the link expires</td><td>Editing the destination or changing the back-half does not remove the expiration.</td></tr>
+  <tr><td>Unknown slug</td><td>Specific behavior/branding is not fully specified in public docs</td><td>Do not infer the internal fallback page or response code beyond documented expiry behavior.</td></tr>
+  <tr><td>Blocked or abusive link</td><td>Bitly uses abuse and trust controls; exact rule logic is not public</td><td>Exact interstitial behavior can vary and is not fully described by the public API reference.</td></tr>
+  <tr><td>Deleted/hidden/inactive item</td><td>UI and API represent status for some asset operations</td><td>Precise retention and all state transitions vary by feature; not every internal status is public.</td></tr>
+  </tbody></table>
+  <h3>Expiration rules</h3>
+  <ul><li>Available on some paid plans.</li><li>Can be configured during link/QR creation via Advanced Settings, or on an existing asset through a more-actions menu.</li><li>Minimum lead time in the cited help documentation: <b>5 minutes</b>; maximum: <b>1 year</b> from current time.</li><li>On expiry, the visitor gets an error destination/page rather than the original content; Bitly describes a 410 page or custom error page.</li><li>Historical analytics is retained; no new clicks/scans are recorded after expiration.</li><li>Expiration survives destination edits and custom-back-half changes; coupled QR Code expiry follows the link.</li><li>Expiration must be individually set; the cited support article says bulk expiry is not currently supported.</li><li>Expired links cannot be added to campaigns, new QR Codes, or Pages until reactivated.</li></ul>
+  <div class="callout warn"><span class="pill c">Boundary</span> Public docs describe product behavior but do not guarantee a single redirect HTTP status code, cache policy, latency, or edge-routing implementation for every active link. Only the expiration behavior above explicitly mentions a 410 page.</div>
+  <p class="small muted">Sources: <a href="https://support.bitly.com/hc/en-us/articles/43445764258957" target="_blank" rel="noopener">Link/QR expiration help</a>, <a href="https://support.bitly.com/hc/en-us/articles/4403556216333" target="_blank" rel="noopener">link re-use and capitalization best practices</a>, <a href="https://bitly.com/pages/pricing" target="_blank" rel="noopener">redirect quotas by plan</a>.</p>
+</section>
+
+<section class="panel searchable" id="qr">
+  <div class="kicker">06 · QR code system</div><h2>Bitly Codes — static, managed, customization, exports</h2>
+  <h3>Code types and destination modes</h3>
+  <table><thead><tr><th>Type / mode</th><th>Stored behavior</th><th>Lifecycle and tracking</th></tr></thead><tbody>
+  <tr><td>Static QR image</td><td>QR image directly encodes its raw content, such as a URL/text.</td><td>The stored content in the image cannot be rewritten by the service after creation; a changed destination generally requires generating a new static code.</td></tr>
+  <tr><td>Managed/dynamic QR Code</td><td>Saved Bitly QR Code resource can use a Bitlink, long URL, or supported destination object.</td><td>Can be retrieved/managed as a saved resource, customized, and support redirect/scan analytics on eligible plans.</td></tr>
+  <tr><td>QR attached to Bitlink</td><td>Code scan resolves through a short link.</td><td>Destination can change via the underlying link on eligible plans; coupled expiry applies.</td></tr>
+  <tr><td>QR for Bitly Page</td><td>Code is a share path for a published Page.</td><td>Can be created from Page share controls and uses the same design customization options available to that plan.</td></tr>
+  </tbody></table>
+  <h3>Visual customization matrix</h3>
+  <table><thead><tr><th>Control</th><th>Documented options / values</th><th>Constraints and notes</th></tr></thead><tbody>
+  <tr><td>Dot pattern</td><td><code>standard</code>, <code>circle</code>, <code>block</code>, <code>blob</code>, <code>rounded</code>, <code>vertical</code>, <code>horizontal</code>, <code>triangle</code>, <code>heart</code>, <code>star</code>, <code>diamond</code></td><td>Exact available options may depend on creation method and product UI version.</td></tr>
+  <tr><td>Dot color</td><td>Hex color string; API field: <code>dot_pattern_color</code></td><td>Color and alpha options depend on accepted hex format; basic customization for static image endpoints is supported.</td></tr>
+  <tr><td>Background color</td><td>Hex color string; API field: <code>background_color</code></td><td>Can be transparent where valid alpha values are supported.</td></tr>
+  <tr><td>Corner shape</td><td><code>standard</code>, <code>slightly_round</code>, <code>rounded</code>, <code>extra_round</code>, <code>leaf</code>, <code>leaf_inner</code>, <code>leaf_outer</code>, <code>target</code>, <code>concave</code></td><td>Each of three finder corners can have customization values.</td></tr>
+  <tr><td>Gradients</td><td>Foreground gradient and background gradient objects; documented styles include linear and radial</td><td>Options include angle, color stops/offsets, and corner exclusion for foreground gradient.</td></tr>
+  <tr><td>Logo</td><td>Custom logo/image in code</td><td>Bitly’s logo help says the uploaded logo must be PNG and no larger than 5 MB; 1:1 aspect ratio is recommended. Paid-plan feature.</td></tr>
+  <tr><td>Frame / text</td><td>Frame, text label, branding mark settings via customization schema</td><td>Static QR image endpoint does not support frame, text, logo, gradient, or background gradient in its documented basic renderer.</td></tr>
+  <tr><td>Design reuse</td><td>Duplicate design; save current design as template; choose recent/default logo in supported UI</td><td>Plan eligibility varies; reusable design/template behavior is described in help materials.</td></tr>
+  <tr><td>Export formats</td><td>PNG, JPEG, SVG from the product UI; API image retrieval documents SVG and PNG paths</td><td>Static-image API endpoint supports SVG and PNG output, controlled via Accept header or format option.</td></tr>
+  </tbody></table>
+  <h3>QR management and analytics</h3>
+  <ul><li>QR Codes can be searched via global search or the QR Codes section; matching fields include long URL, short link, and title.</li><li>Filters documented for QR Codes include created date, code type (QR Code / 2D barcode), creator, attached link, and expiry status (expired, expiring, no expiration date).</li><li>Scan counts are advertised as unlimited across standard plans; creating new codes is limited by monthly quota.</li><li>QR Codes and links can be independently created under particular flows; a stand-alone QR created with <code>long_url</code> rather than a <code>bitlink_id</code> consumes QR-code quota without consuming link quota, according to the developer tutorial.</li><li>For managed codes, the API can return QR metadata such as ID, group, title, archived state, created time, and modified time.</li><li>QR analytics may include time, location, referrer/source, and device breakdowns on eligible tiers.</li></ul>
+  <h3>QR API customization structure</h3>
+  <pre>render_customizations: {
+  background_color: "#ffffff",
+  dot_pattern_color: "#EF8000",
+  dot_pattern_type: "rounded",
+  corners: {
+    corner_1: { shape: "leaf" },
+    corner_2: { shape: "leaf" },
+    corner_3: { shape: "leaf" }
+  },
+  gradient: {
+    style: "linear",
+    angle: 45,
+    colors: [
+      { color: "#C80404", offset: 10 },
+      { color: "#042F86", offset: 90 }
+    ],
+    exclude_corners: false
+  }
+}</pre>
+  <p class="small muted">Sources: <a href="https://dev.bitly.com/api-reference/" target="_blank" rel="noopener">API schemas and endpoints</a>, <a href="https://dev.bitly.com/docs/tutorials/generate-qr-codes/" target="_blank" rel="noopener">QR Code API tutorial</a>, <a href="https://support.bitly.com/hc/en-us/articles/13915765902093" target="_blank" rel="noopener">logo requirements</a>, <a href="https://support.bitly.com/hc/en-us/articles/19005448800141" target="_blank" rel="noopener">design reuse</a>.</p>
+</section>
+
+<section class="panel searchable" id="pages">
+  <div class="kicker">07 · Landing pages</div><h2>Bitly Pages — link-in-bio and mini landing pages</h2>
+  <h3>Creation flow</h3>
+  <div class="flow"><div class="step"><b>1 · Create Page</b><span>Choose Page from Create new and claim its public URL/back-half.</span></div><div class="arrow">→</div><div class="step"><b>2 · Choose intent</b><span>Answer brief goal/use-case prompts as presented.</span></div><div class="arrow">→</div><div class="step"><b>3 · Select template</b><span>Choose a template or start from scratch.</span></div><div class="arrow">→</div><div class="step"><b>4 · Build & design</b><span>Add content blocks; change theme and profile/background styling.</span></div><div class="arrow">→</div><div class="step"><b>5 · Publish</b><span>Save changes as draft, then publish to make them public.</span></div></div>
+  <h3>Supported content blocks</h3>
+  <table><thead><tr><th>Block</th><th>Fields / behavior</th><th>Notable details</th></tr></thead><tbody>
+  <tr><td>Link button</td><td>Title/label, optional description, destination URL, existing/new Bitlink choice, optional thumbnail, schedule</td><td>Can add new or existing Bitly links; can reorder and pin links in the content list.</td></tr>
+  <tr><td>Text</td><td>Editable text content</td><td>Appears as an informational content block on the public Page.</td></tr>
+  <tr><td>Inline image</td><td>Upload or image URL; crop; dimensions; optional title and description; optional outbound link</td><td>Image content is subject to Bitly's content policy and scanning; upload count limit below.</td></tr>
+  <tr><td>Image grid</td><td>Several images presented together</td><td>Images may be clickable; can be arranged as a group.</td></tr>
+  <tr><td>Image carousel</td><td>Multiple images in a swipeable/scrollable presentation</td><td>Images may be clickable; suitable for visual/product content.</td></tr>
+  <tr><td>YouTube video</td><td>Embedded YouTube content</td><td>Supported as a page content type; visible in the published Page.</td></tr>
+  <tr><td>Digital business card / contact info</td><td>Shareable contact details and contact download action</td><td>Contact downloads can be measured on eligible plans.</td></tr>
+  <tr><td>Social icons</td><td>Social-profile links represented as icons</td><td>Social links can be part of the page design.</td></tr>
+  </tbody></table>
+  <h3>Page design and scheduling</h3>
+  <ul><li>Templates include link-in-bio, products/services, and promotions use cases; the page can also start from a blank slate.</li><li>Design controls include theme/layout choices and profile/background imagery, with a public/mobile preview.</li><li>Content ordering uses drag-and-drop and items can be pinned to the top.</li><li>Each applicable content block may have a schedule for when to appear and/or automatically unpublish; a scheduled/disabled item is not shown publicly.</li><li>Draft changes persist between sessions; publishing is a separate action.</li><li>Existing Bitlinks may be added to a Page, and link clicks originating from a Page are shown in referrer metrics as Bitly Link-in-bio.</li><li>A Page can be shared through a QR Code.</li><li>Help documentation states a maximum of 100 uploaded images per Page, counting profile, background, and inline images; URLs can be used instead of uploads.</li></ul>
+  <h3>Page analytics</h3>
+  <div class="grid">
+    <div class="mini"><h4>Page-level counts</h4><p>Total page views and aggregate link clicks for the selected reporting window.</p></div><div class="mini"><h4>Time series</h4><p>Views, link clicks and engagement over time, subject to the selected date range.</p></div><div class="mini"><h4>Referrer/device</h4><p>Views by referrer and device; link clicks by device on supported analytics panels.</p></div><div class="mini"><h4>Geography</h4><p>Views and link clicks by location on supported plans.</p></div><div class="mini"><h4>Top-performing content</h4><p>Page links ranked by performance for the selected window.</p></div><div class="mini"><h4>Contact downloads</h4><p>Digital business-card downloads are reported on eligible paid plans.</p></div>
+  </div>
+  <p class="small muted">Sources: <a href="https://support.bitly.com/hc/en-us/articles/11513559140109-How-do-I-create-a-Bitly-Page" target="_blank" rel="noopener">create a Page</a>, <a href="https://support.bitly.com/hc/en-us/articles/24586780283405" target="_blank" rel="noopener">Page content types</a>, <a href="https://support.bitly.com/hc/en-us/articles/23334331343245" target="_blank" rel="noopener">inline images and 100-image limit</a>, <a href="https://support.bitly.com/hc/en-us/articles/12170727169421" target="_blank" rel="noopener">Page engagement analytics</a>.</p>
+</section>
+
+<section class="panel searchable" id="campaigns">
+  <div class="kicker">08 · Campaign measurement</div><h2>Campaigns, channels, and UTM parameters</h2>
+  <h3>Campaign object structure</h3>
+  <table><thead><tr><th>Entity</th><th>Fields / meaning</th><th>Documented constraints</th></tr></thead><tbody>
+  <tr><td>Campaign</td><td>Campaign name, associated channels, links and engagement aggregation</td><td>A Campaign must contain at least one channel.</td></tr>
+  <tr><td>Channel</td><td>Distribution source such as email, social, announcements or another campaign channel</td><td>Up to 100 channels per campaign, and up to 500 total channels per account/group in the cited support guide.</td></tr>
+  <tr><td>UTM source</td><td>Identifies the source/channel for measurement</td><td>In Bitly Campaign channel behavior, channel values are used as <code>utm_source</code>.</td></tr>
+  <tr><td>UTM medium</td><td>Medium dimension applied to campaign channel links</td><td>The current campaign-channel guide says it is always <code>bitly</code> for this flow.</td></tr>
+  <tr><td>UTM campaign</td><td>Campaign identifier</td><td>The campaign name is used as the <code>utm_campaign</code> value in the documented campaign-channel example.</td></tr>
+  <tr><td>Other UTM fields</td><td>Content/term and general builder fields</td><td>UTM builder and presets are plan-dependent; exact fields are exposed in creation UI.</td></tr>
+  </tbody></table>
+  <h3>Example of channel UTM behavior</h3>
+  <pre>Original destination:
+https://example.com/article
+
+Campaign: "Get to know Campaigns"
+Channel: "social"
+
+Tagged destination pattern:
+https://example.com/article?utm_campaign=Get+to+know+Campaigns&amp;utm_medium=bitly&amp;utm_source=social
+
+Public short link:
+bitly.is/3H2ukWe</pre>
+  <p class="small muted">Example pattern documented by Bitly Support. The actual generated short code, domain and destination URL depend on the account/campaign.</p>
+  <h3>Campaign analytics</h3>
+  <ul><li>Campaign views summarize total engagements and can show number of channels and links.</li><li>Channel details can show engagement counts and time series side-by-side to compare distribution performance.</li><li>Users can drill from channel detail into an individual link’s detail page.</li><li>Campaign data and link analytics are related but not identical; campaign views aggregate channel assets, while individual link detail exposes asset-level dimensions.</li><li>Campaign creation, channel reporting, campaign-level tracking, bulk import and export are plan-dependent. Premium pricing advertises custom campaign-level tracking.</li></ul>
+  <p class="small muted">Source: <a href="https://support.bitly.com/hc/en-us/articles/14550428274317-What-are-Campaign-channels" target="_blank" rel="noopener">Campaign channels, channel limits and UTM rules</a>; <a href="https://support.bitly.com/hc/en-us/articles/115001195267-What-type-of-campaign-analytics-are-available" target="_blank" rel="noopener">campaign analytics</a>.</p>
+</section>
+
+<section class="panel searchable" id="analytics">
+  <div class="kicker">09 · Measurement</div><h2>Analytics dashboard, metrics, filters, and export</h2>
+  <h3>Publicly documented reports</h3>
+  <table><thead><tr><th>Report / module</th><th>Information shown</th><th>Visualization types</th></tr></thead><tbody>
+  <tr><td>Performance over time</td><td>Engagement by time bucket for the selected date period</td><td>Line, table, bar or scorecard depending on configuration.</td></tr>
+  <tr><td>Location</td><td>Country and, on higher tiers, city location breakdown</td><td>Table, bar, doughnut/map where available; official docs note not every chart type applies to every report.</td></tr>
+  <tr><td>Website referrers</td><td>Referring sites/apps or source categories</td><td>Table, bar, doughnut where available.</td></tr>
+  <tr><td>Devices</td><td>Device categories and additional device detail by plan</td><td>Table, bar, doughnut and supported visualizations.</td></tr>
+  <tr><td>Top performing</td><td>Top links/QR Codes by engagement</td><td>Table or scorecard-like summary.</td></tr>
+  <tr><td>Link detail engagement</td><td>Total engagements, last-7-day count, week-over-week change, and history</td><td>Time series and location/referrer/device modules.</td></tr>
+  <tr><td>Page analytics</td><td>Page views, clicks, click-through rate, view/click time series, devices, locations, referrers and top page links</td><td>Page track tab and performance snapshot/dashboard modules.</td></tr>
+  <tr><td>Campaign channels</td><td>Channel-level engagement and comparison across links in a campaign</td><td>Campaign/channel chart and list summaries.</td></tr>
+  </tbody></table>
+  <h3>Analytics modules / visualizations</h3>
+  <div class="taglist"><span class="tag">Line</span><span class="tag">Table</span><span class="tag">Doughnut</span><span class="tag">Bar chart</span><span class="tag">Scorecard</span><span class="tag">Map</span></div>
+  <p>Bitly Support identifies five analytics chart categories—performance over time, location, website referrers, devices and top performing—and six visualization styles—line, table, doughnut, bar chart, scorecard and map. Not all visualizations apply to every chart/report type. Analytics modules can be edited and custom dashboards may be saved automatically on eligible tiers.</p>
+  <h3>Metric definitions / interpretation</h3>
+  <table><thead><tr><th>Metric</th><th>Definition / reporting nuance</th></tr></thead><tbody>
+  <tr><td>Engagements</td><td>The link-detail help page says link engagements can aggregate link clicks, QR Code scans, and clicks on Bitly Page buttons associated with a short link, within the relevant account’s reporting window.</td></tr>
+  <tr><td>Direct</td><td>Bitly’s referrer guide says email/text clicks and links pasted/typed directly into a browser may appear as Direct; not all referral sources can be identified.</td></tr>
+  <tr><td>Bitly QR Code</td><td>Scans from a Bitly Code appear as Bitly QR Code in the referrer list.</td></tr>
+  <tr><td>Bitly Link-in-bio</td><td>Clicks generated from a Bitly Page appear as Bitly Link-in-bio in referrer data.</td></tr>
+  <tr><td>Geography</td><td>Country/city data depends on plan and available attribution; geo reports can be based on network-derived location, not a guaranteed physical location.</td></tr>
+  <tr><td>Device, browser, OS</td><td>Specific breakdown availability differs by plan; Premium advertises city-level and device-type click/scan data.</td></tr>
+  <tr><td>Unique users</td><td>Public material reviewed does not give a universal cross-product definition that would make “unique users” directly comparable across all Bitly reports; use labels exactly as presented in each report.</td></tr>
+  </tbody></table>
+  <h3>Date windows and data retention</h3>
+  <ul><li>Analytics defaults may show the last seven days in documented dashboard flows, with a selectable date range.</li><li>Maximum historical duration is plan-dependent; the standard pricing comparison lists 30 days (Core), 120 days (Growth), one year (Premium) and two years (Enterprise) for analytics history.</li><li>The link details view may show engagement totals for the maximum period available to the subscription, not lifetime totals; date range selection changes charts and supported breakdowns.</li><li>Changing a Page’s selected date period also changes the maximum history scope subject to plan eligibility.</li><li>Dashboard modules can be customized; the support docs say changes are automatically saved as users edit modules.</li></ul>
+  <h3>Export / delivery</h3>
+  <ul><li>Export options include link-level records and analytics aggregate data; fields differ by export function.</li><li>Some exports are downloaded directly; full data exports can be processed asynchronously and emailed to the account holder.</li><li>API analytics endpoints return date-bucketed counts for a supplied time unit and number of units.</li></ul>
+  <p class="small muted">Sources: <a href="https://support.bitly.com/hc/en-us/articles/20371114240909-What-reports-are-available-on-the-Analytics-page" target="_blank" rel="noopener">report and chart types</a>, <a href="https://support.bitly.com/hc/en-us/articles/20370922174093-How-do-I-view-click-and-scan-data" target="_blank" rel="noopener">click/scan overview</a>, <a href="https://support.bitly.com/hc/en-us/articles/230632027-What-referrers-can-I-see-in-my-link-and-scan-metrics" target="_blank" rel="noopener">referrer meanings</a>, <a href="https://support.bitly.com/hc/en-us/articles/230905028-How-do-I-view-engagement-data-for-a-specific-link" target="_blank" rel="noopener">specific-link engagement</a>.</p>
+</section>
+
+<section class="panel searchable" id="domains">
+  <div class="kicker">10 · Branded infrastructure</div><h2>Custom short domains, DNS, root routing, and errors</h2>
+  <h3>Domain onboarding steps</h3>
+  <div class="flow"><div class="step"><b>1 · Enter domain</b><span>Type the domain and indicate whether it already hosts website content.</span></div><div class="arrow">→</div><div class="step"><b>2 · Select groups</b><span>Associate the domain with group(s) permitted by the account.</span></div><div class="arrow">→</div><div class="step"><b>3 · Configure DNS</b><span>Publish records required by the active Bitly setup flow.</span></div><div class="arrow">→</div><div class="step"><b>4 · Verify</b><span>Wait for DNS verification and use the domain for eligible link creation.</span></div></div>
+  <table><thead><tr><th>Property</th><th>Documented details</th></tr></thead><tbody>
+  <tr><td>Domain purpose</td><td>Dedicated branded domain for shortened links, e.g. replacing <code>bit.ly</code> with a brand-owned short domain.</td></tr>
+  <tr><td>Domain length</td><td>Bitly support says the short-link domain can be no more than 32 characters including the dot.</td></tr>
+  <tr><td>Separation from website domain</td><td>Bitly advises that the short-link domain must be different from the customer’s website domain.</td></tr>
+  <tr><td>Plan access</td><td>Branded links/custom domain are included beginning with Growth in the current standard pricing page; Enterprise can have custom domain scale/customization.</td></tr>
+  <tr><td>DNS verification</td><td>Incorrect DNS configuration can cause a documented API error such as <code>DNS_CONFIGURATION_ERROR</code> when shortening with a custom domain.</td></tr>
+  <tr><td>Domain Finder / 1-step setup</td><td>Current pricing advertises domain discovery and one-step setup capabilities on eligible plans.</td></tr>
+  <tr><td>Root router</td><td>Listed in pricing as a feature to send a visitor who enters only the custom domain to a configured page.</td></tr>
+  <tr><td>404 error fixer</td><td>Listed in pricing as a feature to point visitors to a page when a link is mistyped.</td></tr>
+  <tr><td>Multiple domains / domain guard</td><td>Multiple custom domains and privacy/security guard features are plan-dependent; not all plans have the same domain count or tooling.</td></tr>
+  </tbody></table>
+  <div class="callout warn"><span class="pill c">Important</span> The exact DNS record names/targets can vary by account and setup flow. This sheet records the public domain setup behavior and constraints; the live product flow is the source of truth for records required for an individual domain.</div>
+  <p class="small muted">Sources: <a href="https://support.bitly.com/hc/en-us/articles/360025607351-How-do-I-add-my-own-custom-domain-to-Bitly" target="_blank" rel="noopener">add custom domain</a>, <a href="https://support.bitly.com/hc/en-us/articles/230559527-Where-can-I-buy-a-domain" target="_blank" rel="noopener">domain constraints and providers</a>, <a href="https://dev.bitly.com/api-reference/" target="_blank" rel="noopener">API DNS_CONFIGURATION_ERROR</a>, <a href="https://bitly.com/pages/pricing" target="_blank" rel="noopener">current domain feature comparison</a>.</p>
+</section>
+
+<section class="panel searchable" id="accounts">
+  <div class="kicker">11 · Identity and collaboration</div><h2>Accounts, groups, users, roles, and access scope</h2>
+  <h3>Account entry points</h3>
+  <ul><li>Account signup flow can be started from the product homepage or during link/QR creation.</li><li>Public signup documentation describes Google sign-up and email/password registration, followed by email verification.</li><li>Sign-in, account settings, subscription usage, and group/account switching are core surfaces.</li></ul>
+  <h3>Groups and workspaces</h3>
+  <table><thead><tr><th>Capability</th><th>Details</th></tr></thead><tbody>
+  <tr><td>Group purpose</td><td>Organize work by team, department, region, brand or other organizational boundary.</td></tr>
+  <tr><td>Group assets</td><td>Each group can have its own users, custom domains, links, QR Codes and Pages.</td></tr>
+  <tr><td>Group creation</td><td>Support documentation states account admins on Enterprise can create groups from Settings → Groups → Add new group.</td></tr>
+  <tr><td>Group count</td><td>The cited support article states up to 150 groups per Enterprise account.</td></tr>
+  <tr><td>Current-group scope</td><td>Search and filtering operate on the active group; users should verify the group when looking for an asset that may belong elsewhere.</td></tr>
+  <tr><td>Group permissions</td><td>Enterprise advertises multiple users and group permission management; detailed role matrices can depend on the subscription and account setup.</td></tr>
+  <tr><td>SSO</td><td>Enterprise plan advertises single sign-on.</td></tr>
+  </tbody></table>
+  <h3>User and administrative controls</h3>
+  <div class="grid">
+    <div class="mini"><h4>User management</h4><p>Manage user access to groups and links; role/permission administration is an Enterprise feature family.</p></div>
+    <div class="mini"><h4>Groups</h4><p>Keep assets and users partitioned by organizational unit, with group-specific domains.</p></div>
+    <div class="mini"><h4>Security</h4><p>Account security settings include authentication protections such as two-factor authentication.</p></div>
+    <div class="mini"><h4>Usage and billing</h4><p>Subscription/usage screen provides account limits; public pricing advertises quota and data-history differences per plan.</p></div>
+  </div>
+  <p class="small muted">Sources: <a href="https://support.bitly.com/hc/en-us/articles/115004551268-How-do-I-create-a-group-in-Bitly" target="_blank" rel="noopener">group creation and 150-group maximum</a>, <a href="https://support.bitly.com/hc/en-us/articles/230895848-How-do-I-sign-up-for-a-Bitly-account" target="_blank" rel="noopener">signup steps</a>, <a href="https://bitly.com/pages/pricing" target="_blank" rel="noopener">Enterprise features</a>.</p>
+</section>
+
+<section class="panel searchable" id="pricing">
+  <div class="kicker">12 · Published entitlements</div><h2>Current public standard pricing and quotas</h2>
+  <p class="lead">Published plan details captured on 16 October 2026 from Bitly’s pricing page. Dollar amounts and feature eligibility may change; the live pricing page is authoritative.</p>
+  <table><thead><tr><th>Published feature / limit</th><th>Free</th><th>Core</th><th>Growth</th><th>Premium</th><th>Enterprise</th></tr></thead><tbody>
+  <tr><td>Public list price (annual billing equivalent)</td><td>$0</td><td>$10/mo; $120 billed annually</td><td>$29/mo; $348 billed annually</td><td>$199/mo; $2,388 billed annually</td><td>Custom</td></tr>
+  <tr><td>Short links created per month</td><td>5</td><td>100</td><td>500</td><td>3,000</td><td>Custom</td></tr>
+  <tr><td>QR Codes created per month</td><td>2</td><td>5</td><td>10</td><td>200</td><td>Custom</td></tr>
+  <tr><td>Custom landing pages</td><td>2</td><td>5</td><td>10</td><td>20</td><td>Custom</td></tr>
+  <tr><td>Custom back-halves per month</td><td>3</td><td>100</td><td>500</td><td>3,000</td><td>Custom</td></tr>
+  <tr><td>Link click allowance</td><td>Unlimited</td><td>Unlimited</td><td>Unlimited</td><td>Unlimited</td><td>Unlimited</td></tr>
+  <tr><td>QR scan allowance</td><td>Unlimited</td><td>Unlimited</td><td>Unlimited</td><td>Unlimited</td><td>Unlimited</td></tr>
+  <tr><td>Link/QR destination redirects per month</td><td>Not included</td><td>5</td><td>20</td><td>110</td><td>Custom</td></tr>
+  <tr><td>Analytics history (standard pricing table)</td><td>No click/scan history included</td><td>30 days</td><td>120 days / 4 months</td><td>1 year</td><td>2 years</td></tr>
+  <tr><td>Branded short domain</td><td>No</td><td>No</td><td>Included custom domain / branded links</td><td>Yes</td><td>Yes; custom scale</td></tr>
+  <tr><td>Bulk link creation</td><td>No</td><td>No</td><td>100 per upload</td><td>3,000 per upload</td><td>Custom</td></tr>
+  <tr><td>Bulk QR creation</td><td>No</td><td>No</td><td>10 per upload</td><td>200 per upload</td><td>Custom</td></tr>
+  <tr><td>Mobile deep linking</td><td>No</td><td>No</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+  <tr><td>Custom campaign-level tracking</td><td>No</td><td>No</td><td>No</td><td>Yes</td><td>Yes / advanced</td></tr>
+  <tr><td>City-level and device-type analytics</td><td>Limited/not included</td><td>Limited/not included</td><td>Plan-limited</td><td>Yes</td><td>Advanced</td></tr>
+  <tr><td>API requests per month</td><td>1,000</td><td>5,000</td><td>25,000</td><td>50,000</td><td>Custom</td></tr>
+  <tr><td>Custom dashboards</td><td>Not included</td><td>2</td><td>10</td><td>10</td><td>Custom</td></tr>
+  <tr><td>SSO / group permission management</td><td>No</td><td>No</td><td>No</td><td>No</td><td>Yes</td></tr>
+  <tr><td>High-volume API / webhooks</td><td>No</td><td>No</td><td>No</td><td>No</td><td>Yes/custom</td></tr>
+  <tr><td>Published uptime SLA</td><td>—</td><td>—</td><td>—</td><td>—</td><td>99.99%</td></tr>
+  </tbody></table>
+  <h3>Additional plan-qualified features</h3>
+  <ul><li>Free shows “With Ads” on the current pricing page.</li><li>Core is listed as annual only in the current published pricing. Growth and Premium list monthly-equivalent pricing with annual billed totals; monthly billing options may vary by plan.</li><li>UTM Builder, advanced QR customizations, link/QR redirects, and Bitly Assist are advertised with Core and above.</li><li>Growth adds custom domain, branded links, bulk link/QR creation, and a longer history window.</li><li>Premium adds mobile deep linking, custom campaign-level tracking, city-level/device-type data and higher usage limits.</li><li>Enterprise adds user/group permissions, higher-volume API/webhook access, prioritized support/onboarding, dedicated customer success, and SSO.</li><li>Link expiry and QR expiry are described as paid-plan features by support; exact plan availability should be verified in the current feature comparison/account because plan packaging can change.</li></ul>
+  <div class="callout danger"><b>Quota distinction:</b> link/QR creation limits are not click/scan limits. The pricing page advertises unlimited link clicks and QR scans, while imposing monthly creation ceilings and distinct destination-change quotas on paid tiers.</div>
+  <p class="small muted">Primary source: <a href="https://bitly.com/pages/pricing" target="_blank" rel="noopener">Bitly pricing page and detailed feature comparison ↗</a>. Prices are in USD and may exclude taxes. This table is a snapshot, not a price guarantee.</p>
+</section>
+
+<section class="panel searchable" id="api">
+  <div class="kicker">13 · Developer interface</div><h2>Public REST API v4</h2>
+  <p class="lead">Bitly exposes a versioned REST API for link creation, expansion, destination management, QR Code resources, and analytics. The live OpenAPI reference is the definitive source for current schemas and any newly added endpoints.</p>
+  <h3>Connection and request conventions</h3>
+  <table><thead><tr><th>Property</th><th>Specification</th></tr></thead><tbody>
+  <tr><td>API host</td><td><code>https://api-ssl.bitly.com/v4/</code> (developer documentation also labels the API as version 4)</td></tr>
+  <tr><td>Transport</td><td>HTTPS</td></tr>
+  <tr><td>Authentication</td><td>Bearer token header: <code>Authorization: Bearer {TOKEN}</code>; OAuth-based authorization is used for connected-app/user-consent scenarios.</td></tr>
+  <tr><td>Content type</td><td>JSON for ordinary API request/response bodies; image endpoints may return SVG/PNG when the Accept header requests it.</td></tr>
+  <tr><td>Groups</td><td>Many resources are group-scoped using a <code>group_guid</code>.</td></tr>
+  <tr><td>Limits</td><td>Monthly API request limit is plan-based; request-rate rules can also apply. Quotas and rate limits are separate concepts.</td></tr>
+  <tr><td>Time-series analytics</td><td>Click endpoints accept <code>unit</code> (minute, hour, day, week, month), <code>units</code> count (including <code>-1</code> for all units where documented), and optional ISO-8601 <code>unit_reference</code>.</td></tr>
+  </tbody></table>
+  <h3>Documented endpoint inventory</h3>
+  <div class="endpoint"><span class="method">POST</span><code>/v4/shorten</code><span>Convert a long URL into a Bitlink.</span></div>
+  <div class="endpoint"><span class="method">POST</span><code>/v4/bitlinks</code><span>Create a Bitlink / create a custom keyword for a link.</span></div>
+  <div class="endpoint"><span class="method patch">PATCH</span><code>/v4/bitlinks/{bitlink}</code><span>Redirect or update the destination of an existing Bitlink.</span></div>
+  <div class="endpoint"><span class="method get">GET</span><code>/v4/bitlinks/{bitlink}</code><span>Retrieve a Bitlink and its metadata.</span></div>
+  <div class="endpoint"><span class="method get">GET</span><code>/v4/expand</code><span>Expand/resolve a Bitlink to its original destination details.</span></div>
+  <div class="endpoint"><span class="method get">GET</span><code>/v4/bitlinks/{bitlink}/clicks</code><span>Get click counts in time buckets.</span></div>
+  <div class="endpoint"><span class="method get">GET</span><code>/v4/bitlinks/{bitlink}/clicks/summary</code><span>Get click counts rolled into a single summary field.</span></div>
+  <div class="endpoint"><span class="method get">GET</span><code>/v4/bitlinks/{bitlink}/countries</code><span>Get country distribution where available.</span></div>
+  <div class="endpoint"><span class="method get">GET</span><code>/v4/bitlinks/{bitlink}/referrers</code><span>Get referring-source breakdown where available.</span></div>
+  <div class="endpoint"><span class="method get">GET</span><code>/v4/bitlinks/{bitlink}/referring_domains</code><span>Get referring domains where available.</span></div>
+  <div class="endpoint"><span class="method get">GET</span><code>/v4/groups/{group_guid}/links/clicks</code><span>Group-level click series.</span></div>
+  <div class="endpoint"><span class="method get">GET</span><code>/v4/groups/{group_guid}/links/clicks/devices</code><span>Group-level device report.</span></div>
+  <div class="endpoint"><span class="method get">GET</span><code>/v4/groups/{group_guid}/links/clicks/locations</code><span>Group-level location report where supported.</span></div>
+  <div class="endpoint"><span class="method">POST</span><code>/v4/qr-codes</code><span>Create a saved/managed QR Code resource and return metadata.</span></div>
+  <div class="endpoint"><span class="method">POST</span><code>/v4/qr-codes/static</code><span>Generate a static QR image without saving a managed resource; account feature enablement may be required.</span></div>
+  <div class="endpoint"><span class="method get">GET</span><code>/v4/qr-codes/{qrcode_id}</code><span>Retrieve a saved code resource and its metadata.</span></div>
+  <div class="endpoint"><span class="method get">GET</span><code>/v4/qr-codes/{qrcode_id}/image</code><span>Retrieve the QR image; SVG and PNG can be requested.</span></div>
+  <h3>Shorten request and response example</h3>
+  <pre>POST https://api-ssl.bitly.com/v4/shorten
+Authorization: Bearer {TOKEN}
+Content-Type: application/json
+
+{
+  "long_url": "https://example.com/products",
+  "domain": "bit.ly",
+  "group_guid": "{GROUP_GUID}",
+  "force_new_link": false
+}
+
+Typical response shape:
+{
+  "created_at": "...",
+  "id": "bit.ly/{code}",
+  "link": "https://bit.ly/{code}",
+  "long_url": "https://example.com/products"
+}</pre>
+  <h3>QR API request fields</h3>
+  <table><thead><tr><th>Field</th><th>Meaning</th></tr></thead><tbody>
+  <tr><td><code>title</code></td><td>Display name/title of the saved QR Code.</td></tr><tr><td><code>group_guid</code></td><td>Group under which the QR Code is created; required for documented code endpoint schemas.</td></tr><tr><td><code>destination</code></td><td>Destination object such as <code>long_url</code> or <code>bitlink_id</code> for managed code creation.</td></tr><tr><td><code>render_customizations</code></td><td>Code visual customization object: colors, pattern type, corner configuration, gradients, logo/frame/text and related design options supported for the requested endpoint.</td></tr><tr><td><code>content</code></td><td>Raw string to encode for static QR generation.</td></tr><tr><td><code>branding.bitly_brand</code></td><td>Boolean for Bitly branding in the documented customization structure.</td></tr><tr><td><code>spec_settings.error_correction</code></td><td>Error-correction parameter exposed in the documented editable code settings.</td></tr></tbody></table>
+  <h3>Documented API errors / failure scenarios</h3>
+  <table><thead><tr><th>Error / class</th><th>Meaning and observable consequence</th></tr></thead><tbody>
+  <tr><td><code>BRANDED_LINK_MONTHLY_LIMIT_EXCEEDED</code></td><td>Attempt to create more branded links than the account’s configured monthly limit.</td></tr>
+  <tr><td><code>DNS_CONFIGURATION_ERROR</code></td><td>Attempt to shorten links against a custom domain that is not configured correctly.</td></tr>
+  <tr><td>Authentication / authorization error</td><td>Missing/invalid token or token lacking access to the requested group/resource.</td></tr>
+  <tr><td>Validation error</td><td>Malformed URL, missing required field, unsupported property/value, or invalid path parameters; exact body is endpoint-specific.</td></tr>
+  <tr><td>Rate/quota limit response</td><td>Public documentation discusses API quotas/rate limiting; a rate-limit response requires respecting the returned policy/window.</td></tr>
+  </tbody></table>
+  <div class="callout">The endpoint inventory above is a high-value index, not a replacement for the current OpenAPI schema. API paths and request fields may be expanded or deprecated over time; the official docs show versioned schemas and examples.</div>
+  <p class="small muted">Primary source: <a href="https://dev.bitly.com/api-reference/" target="_blank" rel="noopener">Bitly API Reference</a> · <a href="https://dev.bitly.com/docs/tutorials/generate-qr-codes/" target="_blank" rel="noopener">QR Code API tutorial</a>.</p>
+</section>
+
+<section class="panel searchable" id="integrations">
+  <div class="kicker">14 · Connected workflows</div><h2>Integrations, apps, extensions, and AI-facing tools</h2>
+  <table><thead><tr><th>Integration surface</th><th>Documented capability</th><th>Important caveat</th></tr></thead><tbody>
+  <tr><td>Browser extensions</td><td>Chrome, Firefox and Microsoft Edge; shorten the current page without leaving it, choose domain, add UTM fields, customize title/back-half/tags, create QR Code.</td><td>Destination URL editing remains in the web app according to the extension help guide.</td></tr>
+  <tr><td>Mobile applications</td><td>Android and iOS apps for short links, QR Codes, landing-page changes, and supported metrics.</td><td>Exact parity with desktop surfaces is not promised; features depend on app/platform and plan.</td></tr>
+  <tr><td>Canva</td><td>Create short links and QR Codes in Canva; reuse existing codes; access the latest 50 QR Codes in the Canva app panel as described in support docs.</td><td>Customization availability follows subscription plan; saved codes are associated with Bitly for ongoing metrics.</td></tr>
+  <tr><td>Slack</td><td>Published app commands include <code>/shorten</code>, <code>/qr</code>, <code>/clicks</code>, <code>/top</code>, <code>/cities</code>, <code>/countries</code>, <code>/devices</code>, and <code>/referrers</code>.</td><td>Documented analytics in Slack shows the past 14 days for those commands; more detailed views open in Bitly.</td></tr>
+  <tr><td>Marketing / SaaS ecosystem</td><td>Bitly markets a marketplace of 60+ integrations and named connections such as Canva, HubSpot and Shopify.</td><td>Available actions and whether an external app can create vs only insert links differ per integration.</td></tr>
+  <tr><td>AI assistant integrations</td><td>Current pricing lists integrations associated with ChatGPT, Claude, Copilot and Perplexity; Bitly Assist provides link creation and analytics assistance on Core+; Bitly MCP is listed for AI-agent connectivity.</td><td>Entitlements, connectors, and available tool scopes can change. Public description is not a complete list of supported assistant tool operations.</td></tr>
+  <tr><td>REST API</td><td>Programmatic link creation, redirect updates, analytics querying, QR Code creation and retrieval.</td><td>Monthly API quotas and rate limits apply; use authorized server-side credentials.</td></tr>
+  <tr><td>Webhooks</td><td>Enterprise pricing advertises high-volume API and webhook access.</td><td>The detailed webhook event schemas and delivery behavior should be read from the account’s current docs/contract; not fully specified in the pricing summary.</td></tr>
+  </tbody></table>
+  <p class="small muted">Sources: <a href="https://support.bitly.com/hc/en-us/articles/10745806857741" target="_blank" rel="noopener">browser extension</a>, <a href="https://support.bitly.com/hc/en-us/articles/17581282704653" target="_blank" rel="noopener">Canva integration</a>, <a href="https://support.bitly.com/hc/en-us/articles/41331503654797" target="_blank" rel="noopener">Slack integration commands</a>, <a href="https://bitly.com/pages/pricing" target="_blank" rel="noopener">AI/MCP/Enterprise features</a>.</p>
+</section>
+
+<section class="panel searchable" id="security">
+  <div class="kicker">15 · Trust, privacy, and reliability</div><h2>Security, privacy, and operational trust</h2>
+  <h3>Publicly stated product controls</h3>
+  <table><thead><tr><th>Area</th><th>Public product statement</th><th>Specification boundary</th></tr></thead><tbody>
+  <tr><td>Security certification</td><td>Bitly advertises SOC 2 compliance in security/product materials.</td><td>Certification scope, audit period and available report depend on current security materials / enterprise process.</td></tr>
+  <tr><td>Account protection</td><td>Two-factor authentication is available; Enterprise advertises SSO.</td><td>Exact supported factors, identity-provider list and enforcement policy should be confirmed in current settings/contract.</td></tr>
+  <tr><td>Access control</td><td>Enterprise group permission and user management are advertised.</td><td>Full role-by-role permissions matrix may be account-specific and is not fully described in the public pricing summary.</td></tr>
+  <tr><td>Image scanning</td><td>Uploads for Pages and Codes are scanned against Bitly content policy; rejected content can have an appeal path according to support policy.</td><td>Classification model and internal decision rules are not public.</td></tr>
+  <tr><td>Abuse/safety</td><td>Bitly has policy and reporting controls for malicious, spammy or deceptive links/content.</td><td>Detection features, scoring rules, allow/block criteria and internal workflows are private or only partially documented.</td></tr>
+  <tr><td>Privacy notice</td><td>Privacy policy describes collection of link details and interaction data, including IP address, approximate IP-derived location, access time, referrer and browser/device details.</td><td>Collection/retention depends on product and settings; the policy is authoritative and may update.</td></tr>
+  <tr><td>Availability</td><td>Enterprise pricing advertises 99.99% uptime.</td><td>This is an Enterprise SLA claim; it is not a universal uptime guarantee for all plans and is subject to the relevant contract terms.</td></tr>
+  <tr><td>API access</td><td>Authenticated requests and group-scoped resources.</td><td>Tokens are sensitive credentials; exact scopes and revocation behavior are described in current developer/account docs.</td></tr>
+  </tbody></table>
+  <h3>Privacy interpretation notes</h3>
+  <ul><li>Short-link analytics are interaction analytics: visitors click a link or scan a code, and the service records engagement information to provide reporting.</li><li>Referrer information is not complete for every click. Email, SMS, direct browser entry and certain apps may be attributed to Direct or another source category.</li><li>Location is derived from available networking/location signals and should not be interpreted as exact GPS location.</li><li>Privacy policy descriptions may include IP-derived location, device/browser information and timestamps. A platform using link analytics must communicate its own data practice clearly.</li></ul>
+  <div class="callout warn">Public privacy/security descriptions do not reveal Bitly’s entire event schema, bot-filtering logic, raw-data retention schedule, or internal abuse-scoring implementation. Those details should not be inferred from visible charts or API output.</div>
+  <p class="small muted">Sources: <a href="https://bitly.com/pages/security" target="_blank" rel="noopener">Bitly security</a>, <a href="https://bitly.com/pages/privacy" target="_blank" rel="noopener">Bitly privacy policy</a>, <a href="https://bitly.com/pages/pricing" target="_blank" rel="noopener">pricing and Enterprise SLA summary</a>, <a href="https://support.bitly.com/hc/en-us/articles/4411769304077" target="_blank" rel="noopener">image policy</a>.</p>
+</section>
+
+<section class="panel searchable" id="states">
+  <div class="kicker">16 · Behavior reference</div><h2>Edge cases, status transitions, and visible product states</h2>
+  <table><thead><tr><th>Scenario</th><th>Known Bitly behavior</th><th>Details / caveat</th></tr></thead><tbody>
+  <tr><td>Slug collision</td><td>Exact same custom back-half cannot be reused on the same domain.</td><td>Capitalization variants may be allowed because links are case-sensitive; monthly custom back-half quotas apply.</td></tr>
+  <tr><td>Invalid custom slug character</td><td>Unsupported punctuation/symbol characters are rejected by the documented rules.</td><td>Supported character list: letters, numbers, hyphen, underscore.</td></tr>
+  <tr><td>Custom domain DNS invalid</td><td>API can return <code>DNS_CONFIGURATION_ERROR</code>.</td><td>Use domain setup flow and verify DNS before creating links under that domain.</td></tr>
+  <tr><td>Monthly link quota exceeded</td><td>New link creation is quota-limited; branded link creation can produce <code>BRANDED_LINK_MONTHLY_LIMIT_EXCEEDED</code>.</td><td>Existing links may continue receiving clicks; creation capacity and traffic allowance are separate.</td></tr>
+  <tr><td>Destination edit quota exceeded</td><td>Redirects are subject to explicit monthly quota on paid plans.</td><td>Published plan comparison: Core 5, Growth 20, Premium 110, Enterprise custom.</td></tr>
+  <tr><td>Expired asset visited</td><td>Expired links/codes route to an error page; Bitly mentions 410 page or custom error page.</td><td>New engagement stops; historical data remains; eligible users can reactivate expired links.</td></tr>
+  <tr><td>Page content not published</td><td>Changes remain in draft until Publish changes is clicked.</td><td>Leaving editor does not discard the draft.</td></tr>
+  <tr><td>Scheduled/disabled Page link</td><td>Scheduled or disabled links do not appear in the public page view.</td><td>Schedule controls can delay publication or unpublish later.</td></tr>
+  <tr><td>Expired link used in Page/Campaign</td><td>Support docs say expired links cannot be added to Campaigns, have new QR Codes created for them, or be added to Pages until reactivated.</td><td>Reactivation is the documented route back into those workflows.</td></tr>
+  <tr><td>Search finds nothing</td><td>Search is scoped to current group and uses recognized asset fields.</td><td>Check group/workspace selector before assuming an asset is missing.</td></tr>
+  <tr><td>QR image customization endpoint difference</td><td>Static QR renderer lacks some enhanced options supported by saved QR resource customization.</td><td>The public tutorial explicitly lists gradient, background gradient, frame, text and logo as unsupported on static-code endpoint.</td></tr>
+  <tr><td>Bulk operations</td><td>Bulk creation and some exports are plan-dependent; upload limits vary by tier.</td><td>Page link expiration is described as individual per asset, not bulk, in the cited help guide.</td></tr>
+  <tr><td>Analytics window unavailable</td><td>Displayed history is capped by the account’s current plan and chosen report/time range.</td><td>Counts shown in list views can represent only the maximum period available to subscription, not lifetime totals.</td></tr>
+  </tbody></table>
+  <h3>Common labels and status vocabulary</h3>
+  <div class="taglist"><span class="tag">Active</span><span class="tag">Expired</span><span class="tag">Expiring</span><span class="tag">No expiration</span><span class="tag">Draft</span><span class="tag">Published</span><span class="tag">Scheduled</span><span class="tag">Disabled</span><span class="tag">Archived / hidden where available</span><span class="tag">DNS verification</span><span class="tag">Group-scoped</span></div>
+  <p class="small muted">Not every term is used in every module, and these tags should not be interpreted as a complete internal status enumeration.</p>
+</section>
+
+<section class="panel searchable" id="unknowns">
+  <div class="kicker">17 · Boundaries of public documentation</div><h2>Details that cannot be reliably specified from public sources</h2>
+  <p class="lead">A complete public product specification records documented behavior while avoiding made-up internals. These areas are not fully exposed by Bitly’s public marketing/support/API references reviewed for this sheet.</p>
+  <table><thead><tr><th>Undocumented/private detail</th><th>What can be stated safely</th></tr></thead><tbody>
+  <tr><td>Internal database, storage layout, cache topology</td><td>Not publicly established. Public APIs expose domain/path identifiers, metadata and analytics responses, not database implementation.</td></tr>
+  <tr><td>Short-code generation algorithm and entropy</td><td>The public API returns short identifiers and accepts optional custom back-halves; the exact random/generation algorithm is not public.</td></tr>
+  <tr><td>Universal redirect status and cache headers</td><td>Expiration help specifies a 410 page/error page; a universal status/header policy for all requests is not established in sources reviewed.</td></tr>
+  <tr><td>Guaranteed redirect latency or global throughput</td><td>Enterprise pricing advertises a 99.99% uptime SLA; universal redirect latency and throughput numbers are not established here.</td></tr>
+  <tr><td>Exact unique-user/session model</td><td>Public reports expose clicks/scans and breakdowns, but this review does not establish a universal cross-product unique-user identity definition.</td></tr>
+  <tr><td>Raw event retention and deletion schedule</td><td>Pricing specifies analytics history windows; this is not necessarily the same thing as a complete underlying raw-event retention schedule.</td></tr>
+  <tr><td>Bot filtering and abuse classification</td><td>Public safety measures exist, but the private models, thresholds, block lists and filtering algorithms are not public.</td></tr>
+  <tr><td>All API scopes/rate thresholds</td><td>Public API docs and account quotas describe supported operations and usage limits; thresholds and available features can vary by account/contract and change over time.</td></tr>
+  <tr><td>Every UI screen at every account tier</td><td>Public screenshots are representative. UI controls differ by plan, group role, rollout, and whether a feature is enabled.</td></tr>
+  </tbody></table>
+  <div class="callout ok"><span class="pill v">Trustworthy use</span> Treat screens and feature behavior as public functional reference. Treat private algorithm, performance, infrastructure, and retention details as unknown until Bitly publishes them or they are confirmed through authorized product testing.</div>
+</section>
+
+<section class="panel searchable" id="sources">
+  <div class="kicker">18 · Primary references</div><h2>Source register and verification notes</h2>
+  <p class="lead">Primary references used to assemble the specification. These links point to official Bitly documentation except where explicitly labeled as a third-party screenshot source.</p>
+  <h3>Pricing and product descriptions</h3><ul class="source-list">
+    <li><a href="https://bitly.com/pages/pricing" target="_blank" rel="noopener">Bitly Pricing — published plan matrix, quotas, history windows, API limits and plan features</a></li>
+    <li><a href="https://bitly.com/pages/products/pages/" target="_blank" rel="noopener">Bitly Pages product page — public landing page builder and analytics claims</a></li>
+    <li><a href="https://bitly.com/pages/security" target="_blank" rel="noopener">Bitly Security</a></li>
+    <li><a href="https://bitly.com/pages/privacy" target="_blank" rel="noopener">Bitly Privacy Policy</a></li>
+  </ul>
+  <h3>Developer/API references</h3><ul class="source-list">
+    <li><a href="https://dev.bitly.com/api-reference/" target="_blank" rel="noopener">Bitly API Reference — OpenAPI schemas, link endpoints, analytics, QR Code create/retrieve/image endpoints</a></li>
+    <li><a href="https://dev.bitly.com/docs/tutorials/generate-qr-codes/" target="_blank" rel="noopener">Generate QR Codes — API tutorial, customization options and static-vs-saved distinction</a></li>
+  </ul>
+  <h3>Links, slugs, and expiration</h3><ul class="source-list">
+    <li><a href="https://support.bitly.com/hc/en-us/articles/360030780892-What-characters-are-supported-when-customizing-links" target="_blank" rel="noopener">Supported custom link characters</a></li>
+    <li><a href="https://support.bitly.com/hc/en-us/articles/4403556216333-Best-practices-for-creating-and-sharing-content-in-Bitly" target="_blank" rel="noopener">Link case sensitivity and reuse best practices</a></li>
+    <li><a href="https://support.bitly.com/hc/en-us/articles/43445764258957" target="_blank" rel="noopener">Link and QR Code expiration: eligibility, limits, and expired behavior</a></li>
+    <li><a href="https://support.bitly.com/hc/en-us/articles/230905028-How-do-I-view-engagement-data-for-a-specific-link" target="_blank" rel="noopener">Specific-link engagement metrics and date windows</a></li>
+  </ul>
+  <h3>QR Codes and Pages</h3><ul class="source-list">
+    <li><a href="https://support.bitly.com/hc/en-us/articles/360030557072-How-do-I-create-a-QR-Code-in-Bitly" target="_blank" rel="noopener">Create a QR Code</a></li>
+    <li><a href="https://support.bitly.com/hc/en-us/articles/13915765902093-Best-practices-for-Bitly-Code-logos" target="_blank" rel="noopener">QR Code logo image requirements</a></li>
+    <li><a href="https://support.bitly.com/hc/en-us/articles/19005448800141-Can-I-reuse-Bitly-Code-designs" target="_blank" rel="noopener">Duplicate and save QR Code designs</a></li>
+    <li><a href="https://support.bitly.com/hc/en-us/articles/11513559140109-How-do-I-create-a-Bitly-Page" target="_blank" rel="noopener">Create a Bitly Page</a></li>
+    <li><a href="https://support.bitly.com/hc/en-us/articles/24586780283405-What-kinds-of-content-can-I-put-on-a-Bitly-Page" target="_blank" rel="noopener">Page content types</a></li>
+    <li><a href="https://support.bitly.com/hc/en-us/articles/23334331343245-How-do-I-add-inline-images-to-my-Bitly-Page" target="_blank" rel="noopener">Page image uploads and limits</a></li>
+    <li><a href="https://support.bitly.com/hc/en-us/articles/12170727169421-How-do-I-view-engagement-data-for-my-Bitly-Page" target="_blank" rel="noopener">Page analytics and contact downloads</a></li>
+  </ul>
+  <h3>Analytics, campaigns, and integrations</h3><ul class="source-list">
+    <li><a href="https://support.bitly.com/hc/en-us/articles/20371114240909-What-reports-are-available-on-the-Analytics-page" target="_blank" rel="noopener">Analytics reports and chart types</a></li>
+    <li><a href="https://support.bitly.com/hc/en-us/articles/230632027-What-referrers-can-I-see-in-my-link-and-scan-metrics" target="_blank" rel="noopener">Referrer categories and meanings</a></li>
+    <li><a href="https://support.bitly.com/hc/en-us/articles/14550428274317-What-are-Campaign-channels" target="_blank" rel="noopener">Campaign channel quotas and UTM mapping</a></li>
+    <li><a href="https://support.bitly.com/hc/en-us/articles/10745806857741-How-do-I-shorten-links-with-the-Bitly-browser-extension" target="_blank" rel="noopener">Browser extension workflow</a></li>
+    <li><a href="https://support.bitly.com/hc/en-us/articles/17581282704653-Can-I-integrate-Bitly-with-Canva" target="_blank" rel="noopener">Canva integration</a></li>
+    <li><a href="https://support.bitly.com/hc/en-us/articles/41331503654797-Can-I-integrate-Bitly-with-Slack" target="_blank" rel="noopener">Slack integration commands</a></li>
+  </ul>
+  <h3>Domains, groups, and export</h3><ul class="source-list">
+    <li><a href="https://support.bitly.com/hc/en-us/articles/360025607351-How-do-I-add-my-own-custom-domain-to-Bitly" target="_blank" rel="noopener">Custom domain onboarding</a></li>
+    <li><a href="https://support.bitly.com/hc/en-us/articles/230559527-Where-can-I-buy-a-domain" target="_blank" rel="noopener">Domain constraints and setup</a></li>
+    <li><a href="https://support.bitly.com/hc/en-us/articles/115004551268-How-do-I-create-a-group-in-Bitly" target="_blank" rel="noopener">Enterprise group creation and group count</a></li>
+    <li><a href="https://support.bitly.com/hc/en-us/articles/230631767-How-do-I-export-link-data-for-a-select-group-of-links" target="_blank" rel="noopener">Selected-link export</a></li>
+    <li><a href="https://support.bitly.com/hc/en-us/articles/115000268051-How-do-I-export-all-data-from-the-Links-page" target="_blank" rel="noopener">Full link-list export</a></li>
+  </ul>
+  <h3>Screenshot source register</h3><ul class="source-list">
+    <li>Bitly Analytics dashboard image: <a href="https://bitly.com/blog/wp-content/uploads/2024/01/Bitly-Analytics-default-dashboard.png" target="_blank" rel="noopener">direct image</a> · <a href="https://bitly.com/blog/marketing-roi-with-bitly-analytics/" target="_blank" rel="noopener">article</a></li>
+    <li>Links list screenshot: <a href="https://cdn.setapp.com/blog/images/bitly-personal-account.webp" target="_blank" rel="noopener">direct image</a> · <a href="https://setapp.com/app-reviews/best-url-shorteners" target="_blank" rel="noopener">third-party article</a></li>
+    <li>QR customization screenshot: <a href="https://support.bitly.com/hc/article_attachments/31230896370189" target="_blank" rel="noopener">direct image</a></li>
+    <li>QR expiration settings screenshot: <a href="https://support.bitly.com/hc/article_attachments/43448591395213" target="_blank" rel="noopener">direct image</a></li>
+    <li>Specific-link engagement chart: <a href="https://support.bitly.com/hc/article_attachments/30730510711181" target="_blank" rel="noopener">direct image</a></li>
+    <li>Campaign analytics screenshot: <a href="https://support.bitly.com/hc/article_attachments/13800562508429" target="_blank" rel="noopener">direct image</a></li>
+    <li>Custom domain add screen: <a href="https://support.bitly.com/hc/article_attachments/10455995903757" target="_blank" rel="noopener">direct image</a></li>
+    <li>Bitly Page design editor: <a href="https://support.bitly.com/hc/article_attachments/34413809165197" target="_blank" rel="noopener">direct image</a></li>
+    <li>Page template selection: <a href="https://support.bitly.com/hc/article_attachments/33887638466701" target="_blank" rel="noopener">direct image</a></li>
+    <li>Page build editor: <a href="https://support.bitly.com/hc/article_attachments/30730527711629" target="_blank" rel="noopener">direct image</a></li>
+    <li>Page engagement snapshot: <a href="https://support.bitly.com/hc/article_attachments/34445446004237" target="_blank" rel="noopener">direct image</a></li>
+    <li>Page template gallery: <a href="https://support.bitly.com/hc/article_attachments/30730510982285" target="_blank" rel="noopener">direct image</a></li>
+  </ul>
+  <div class="callout"><b>Snapshot date:</b> 16 October 2026. All quotas, prices, plan gates, integration availability and UI labels are subject to change. Links above are the source of truth for future verification.</div>
+</section>
+<div class="foot">Bitly detailed product specification · Prepared 16 October 2026 · Publicly documented behavior only · Screenshots load from linked public sources when online.</div>
+</main>
+</div>
+<script>
+(function(){
+ const input=document.getElementById('sectionSearch');
+ const sections=[...document.querySelectorAll('.searchable')];
+ const links=[...document.querySelectorAll('#sectionNav a')];
+ const noResults=document.createElement('div');noResults.className='no-results';noResults.textContent='No matching section. Try another keyword.';
+ input.parentElement.appendChild(noResults);
+ input.addEventListener('input',function(){
+   const q=this.value.trim().toLowerCase();let visible=0;
+   sections.forEach(s=>{const match=!q||s.innerText.toLowerCase().includes(q);s.style.display=match?'':'none';if(match)visible++;});
+   links.forEach(a=>{const target=document.querySelector(a.getAttribute('href'));if(target){a.style.display=!q||target.style.display!=='none'?'':'none';}});
+   noResults.style.display=visible?'none':'block';
+ });
+ document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',function(){if(input.value){input.value='';input.dispatchEvent(new Event('input'));}}));
+})();
+</script>
+</body>
+</html>

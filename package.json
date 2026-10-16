@@ -19,6 +19,7 @@
     "@supabase/supabase-js": "^2.103.1",
     "geist": "^1.7.2",
     "next": "16.4.1",
+    "qr-code-styling": "^1.9.2",
     "qrcode": "^1.5.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^20.19.39",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "autoprefixer": "^10.5.0",

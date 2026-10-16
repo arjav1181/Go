@@ -519,3 +519,67 @@
     mask-image: linear-gradient(to bottom, black, transparent 70%);
   }
 }
+/* --- QR designer ------------------------------------------------------- */
+.qr-designer {
+  display: grid;
+  grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
+  gap: var(--space-6, 1.5rem);
+  align-items: start;
+}
+
+.qr-designer-preview {
+  display: grid;
+  place-items: center;
+  padding: var(--space-5, 1.25rem);
+  border: 1px solid var(--line, #e4e7ec);
+  border-radius: var(--radius-lg, 14px);
+  background: var(--surface-2, #f9fafb);
+}
+
+.qr-designer-controls {
+  display: grid;
+  gap: var(--space-3, 0.75rem);
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.qr-field {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.qr-field > span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted, #667085);
+  letter-spacing: 0.01em;
+}
+
+.qr-field select,
+.qr-field input {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--line, #e4e7ec);
+  border-radius: var(--radius-md, 10px);
+  background: var(--surface-1, #fff);
+  font: inherit;
+  font-size: 0.86rem;
+}
+
+.qr-field input[type='color'] {
+  padding: 0.2rem;
+  height: 2.2rem;
+  cursor: pointer;
+}
+
+.qr-note {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-muted, #667085);
+}
+
+@media (max-width: 720px) {
+  .qr-designer {
+    grid-template-columns: 1fr;
+  }
+}
