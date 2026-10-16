@@ -129,6 +129,52 @@ Next.js 16 (App Router), TypeScript, Tailwind CSS, Supabase Auth/Postgres.
 > Upgrading from an earlier P0 deployment? Links created before owner tracking existed have no
 > `created_by`; the app adopts them automatically the first time an owner opens the dashboard.
 
+## Running it locally with Docker
+
+```bash
+cp .env.example .env      # compose reads this
+docker compose up --build
+```
+
+Two services: `app` on `:3000` and a real Postgres on `:5432` (bound to
+loopback — it has a guessable password and must not be exposed).
+
+**Read the caveat before assuming something is broken.** The app does not read
+Postgres directly: `@supabase/supabase-js` speaks HTTP to PostgREST for data and
+GoTrue for auth. A bare Postgres container therefore cannot make the app *run*.
+So:
+
+| What you want | How |
+|---|---|
+| Everything working | `npm i -g supabase && supabase start`, then `docker compose up app` |
+| Migrations, tests, CI | `docker compose up -d db` then `npm run db:migrate && npm test` |
+
+### Migrations
+
+```bash
+SUPABASE_DB_URL='postgresql://postgres:postgres@localhost:5432/go' npm run db:migrate
+```
+
+Not applied automatically: `/docker-entrypoint-initdb.d` only fires when the data
+volume is empty, so a second run would silently do nothing. The script is
+explicit and fails loudly.
+
+`docker/postgres-init/00-roles.sql` exists because every migration grants to
+`service_role`, which a plain `postgres:17` image does not create. Without it
+migration `0001` fails on its first statement.
+
+### The two kinds of environment variable
+
+This is the classic Next-in-Docker bug, so it is worth stating plainly:
+
+- **`NEXT_PUBLIC_*` are baked in at build time.** Passing them at run time does
+  nothing — they are already compiled into the client bundle. `docker-compose.yml`
+  passes them as build args.
+- **Server-only values** (`SUPABASE_SERVICE_ROLE_KEY`, `CRON_SECRET`,
+  `OWNER_EMAILS`, …) are read at run time and are never baked into an image
+  layer. Keep them in `.env`, which `.dockerignore` excludes from the build
+  context.
+
 ## Checks
 
 ```bash

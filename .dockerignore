@@ -1,0 +1,43 @@
+# Keep the build context small and secrets out of it.
+#
+# `.env*` is excluded because NEXT_PUBLIC_* values are passed as build args by
+# docker-compose.yml, and everything server-only is injected at run time. A
+# developer's real credentials should never end up in an image layer.
+
+node_modules
+.next
+.git
+.github
+.gitignore
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Tests and typecheck output
+.test-dist
+coverage
+*.tsbuildinfo
+
+# Docs and agent notes that have no business in an image
+*.md
+LAUNCH.md
+OPENCODE_PROMPT.md
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.idea
+.vscode
+*.swp
+*.log
+npm-debug.log*
+
+# Vercel
+.vercel
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore

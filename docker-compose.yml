@@ -1,0 +1,99 @@
+# Local development stack for go.
+#
+#   docker compose up --build
+#   → http://localhost:3000
+#
+# ---------------------------------------------------------------------------
+# The important caveat, read this before assuming something is broken
+# ---------------------------------------------------------------------------
+#
+# This stack runs the **application** plus a real **Postgres** that you can apply
+# migrations to and run the test suite against. It deliberately does not fake
+# the Supabase services.
+#
+# The app does not read Postgres directly. `@supabase/supabase-js` speaks HTTP to
+# **PostgREST** (data) and **GoTrue** (auth). A bare Postgres container therefore
+# cannot make the app run: there is no REST layer and no sign-in endpoint.
+#
+# So there are two supported local setups:
+#
+#   A. Full stack — everything works (recommended)
+#      Requires the Supabase CLI, which starts Postgres + PostgREST + GoTrue
+#      together and gives you a working local Supabase on :54321.
+#
+#          npm install -g supabase
+#          supabase start
+#          # take the printed API URL / anon key / service_role key
+#          docker compose up app
+#
+#   B. This file alone — schema, migrations and tests work
+#      Good for CI, migration work and the unit suite. Sign-in and link
+#      creation will not work, because there is no auth or REST service.
+#
+#      docker compose up -d db
+#      npm run db:migrate        # applies all migrations in order
+#      npm test
+#
+#      Migrations are NOT applied automatically. `docker-entrypoint-initdb.d`
+#      only runs when the data volume is empty, so a re-run silently does
+#      nothing. Use the script, which is idempotent by design.
+#
+# ---------------------------------------------------------------------------
+
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: go-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-go}
+    ports:
+      # Bound to loopback: this is a development database with a guessable
+      # password and must not be reachable from the network.
+      - '127.0.0.1:${DB_PORT:-5432}:5432'
+    volumes:
+      - go-db-data:/var/lib/postgresql/data
+      # Runs once, on a fresh volume. 00-roles.sql must exist because the
+      # migrations grant to roles Supabase normally creates for you.
+      - ./docker/postgres-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d ${POSTGRES_DB:-go}']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Baked into the client bundle at build time.
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY:-}
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+    container_name: go-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Server-only. Supplied at run time and never baked into the image.
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-}
+      OWNER_EMAILS: ${OWNER_EMAILS:-}
+      CRON_SECRET: ${CRON_SECRET:-}
+      EXPERIMENT_SALT: ${EXPERIMENT_SALT:-}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      # Mirrors compose's own .env so the container sees a consistent view.
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY:-}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+    ports:
+      - '${APP_PORT:-3000}:3000'
+
+volumes:
+  go-db-data:

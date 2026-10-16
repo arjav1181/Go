@@ -29,6 +29,16 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
 
   /**
+   * Emit a self-contained server bundle in `.next/standalone`.
+   *
+   * The Docker image copies that directory instead of `node_modules`, which is
+   * the difference between a ~500MB image and a ~150MB one. It also means the
+   * image contains only the dependencies actually reachable from the server
+   * entry point.
+   */
+  output: 'standalone',
+
+  /**
    * `/@handle` is a nicer bio URL, but `@` is Next.js's parallel-route marker
    * and cannot be a literal directory name. Rewrite it to an internal route.
    *
