@@ -1,109 +1,186 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { getServiceSupabase } from '@/lib/db/supabase-server';
+import {
+  isPubliclyVisible,
+  publicBlocks,
+  type PageRow
+} from '@/lib/pages/lifecycle';
+import { safeAccentColor, safeBioHref, normalizeHandle } from '@/lib/links/bio-rules';
+import { recordPageView } from '@/lib/pages/analytics';
+import { PageView, type PageLink } from '@/components/page-view';
 
-import { loadBioPage, safeAccentColor, safeBioHref, normalizeHandle } from '@/lib/links/bio';
+type Params = { params: Promise<{ handle: string }> };
 
 export const dynamic = 'force-dynamic';
 
-type Params = Promise<{ handle: string }>;
+/**
+ * Resolve which row a public bio URL maps to.
+ *
+ * Returns null for unpublished, out-of-schedule, or missing pages so that a
+ * draft is indistinguishable from a nonexistent one — the spec's behaviour, and
+ * also the one that stops handle enumeration from leaking drafts.
+ */
+async function load(handle: string): Promise<PageRow | null> {
+  const normalized = normalizeHandle(handle);
+  if (!normalized) return null;
 
-async function getPage(handle: string) {
-  return loadBioPage(handle);
+  const supabase = getServiceSupabase();
+  const { data, error } = await supabase
+    .from('bio_pages')
+    .select(
+      'id,kind,handle,slug,is_published,draft_blocks,published_blocks,scheduled_publish_at,scheduled_unpublish_at,published_at'
+    )
+    .eq('handle', normalized)
+    .maybeSingle();
+
+  if (error || !data) return null;
+
+  const row = data as unknown as PageRow;
+  if (!isPubliclyVisible(row)) return null;
+  return row;
 }
 
-export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { handle } = await params;
-  const page = await getPage(normalizeHandle(handle));
-
+  const page = await load(handle);
   if (!page) return { title: 'Not found' };
 
-  const title = page.displayName;
-  const description = page.bio || `Links from ${page.displayName}.`;
+  const { display_name, seo_title, seo_description, avatar_url } = await identity(page.id);
+
+  const blockTitle = seo_title || display_name;
+  const blockDescription = seo_description || blockTitle;
 
   return {
-    title,
-    description: description.slice(0, 200),
-    // A bio page is public and meant to be found. Unlike every other page in
-    // the product it is intentionally indexable.
-    robots: page.links.length > 0 ? { index: true, follow: true } : { index: false, follow: true },
+    title: blockTitle,
+    description: blockDescription,
+    alternates: { canonical: `/@${page.handle}` },
     openGraph: {
-      type: 'profile',
-      title,
-      description: description.slice(0, 200),
-      ...(page.avatarUrl ? { images: [{ url: page.avatarUrl }] } : {})
-    }
+      title: blockTitle,
+      description: blockDescription,
+      ...(avatar_url && safeBioHref(avatar_url) ? { images: [avatar_url] } : {})
+    },
+    // A published page is meant to be shared and indexed.
+    robots: { index: true, follow: true }
   };
 }
 
-export default async function BioPageRoute({ params }: { params: Params }) {
+async function identity(pageId: string) {
+  const supabase = getServiceSupabase();
+  const { data } = await supabase
+    .from('bio_pages')
+    .select('display_name,avatar_url,seo_title,seo_description,contact_name,contact_email,contact_phone')
+    .eq('id', pageId)
+    .maybeSingle();
+  return (
+    (data as Record<string, string> | null) ?? {
+      display_name: '',
+      avatar_url: '',
+      seo_title: '',
+      seo_description: '',
+      contact_name: '',
+      contact_email: '',
+      contact_phone: ''
+    }
+  );
+}
+
+export default async function BioPageRoute({ params }: Params) {
   const { handle } = await params;
-  const page = await getPage(normalizeHandle(handle));
+  const page = await load(handle);
   if (!page) notFound();
 
-  const accent = safeAccentColor(page.accentColor);
+  const meta = await identity(page.id);
+  const accent = await accentFor(page.id);
+
+  /**
+   * `null` means this page was created before blocks existed and has never been
+   * published through the editor. It keeps the original fixed layout so nothing
+   * that is already live goes blank after deploy.
+   */
+  const blocks = publicBlocks(page);
+
+  if (blocks === null) {
+    const legacy = await loadLegacy(page.id, page.handle as string);
+    if (!legacy) notFound();
+    return (
+      <PageView
+        handle={legacy.handle}
+        displayName={legacy.displayName}
+        bioText={legacy.bio}
+        avatarUrl={legacy.avatarUrl}
+        accentColor={accent}
+        links={legacy.links}
+        pageId={page.id}
+      />
+    );
+  }
+
+  await recordPageView(page.id);
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-5 py-16">
-      <header className="flex flex-col items-center text-center">
-        {page.avatarUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={page.avatarUrl}
-            alt=""
-            aria-hidden
-            className="h-20 w-20 rounded-full object-cover"
-            style={{ borderColor: accent }}
-          />
-        ) : (
-          <div
-            aria-hidden
-            className="grid h-20 w-20 place-items-center rounded-full font-mono text-2xl font-bold"
-            style={{ background: accent, color: '#fff' }}
-          >
-            {page.displayName.slice(0, 1).toUpperCase()}
-          </div>
-        )}
-
-        <h1 className="mt-5 text-heading-24 text-primary">{page.displayName}</h1>
-        {page.bio ? <p className="mt-2 max-w-md text-copy-14 text-secondary">{page.bio}</p> : null}
-      </header>
-
-      {page.links.length === 0 ? (
-        <p className="mt-12 text-center text-copy-13 text-tertiary">No links published yet.</p>
-      ) : (
-        <ul
-          className={
-            page.theme === 'grid'
-              ? 'mt-10 grid gap-3 sm:grid-cols-2'
-              : 'mt-10 flex flex-col gap-3'
-          }
-        >
-          {page.links.map((link) => {
-            const href = safeBioHref(link.destinationUrl);
-            return (
-              <li key={link.slug}>
-                <a
-                  href={href ?? '#'}
-                  // Only ever http/https, enforced in safeBioHref.
-                  {...(href ? { target: '_blank', rel: 'noopener noreferrer nofollow' } : {})}
-                  aria-disabled={href ? undefined : true}
-                  className="group flex items-center justify-between gap-4 rounded-xl border border-[var(--ds-gray-400)] bg-[var(--ds-background-100)] px-5 py-4 transition-colors hover:bg-[var(--ds-background-200)]"
-                >
-                  <span className="min-w-0">
-                    <span className="block truncate text-label-14 text-primary">{link.title}</span>
-                    {link.description ? (
-                      <span className="mt-0.5 block truncate text-label-12 text-tertiary">
-                        {link.description}
-                      </span>
-                    ) : null}
-                  </span>
-                  <span className="shrink-0 font-mono text-label-12 text-tertiary">/{link.slug}</span>
-                </a>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </div>
+    <PageView
+      handle={page.handle as string}
+      displayName={meta.display_name}
+      bioText={meta.seo_description}
+      avatarUrl={meta.avatar_url}
+      accentColor={accent}
+      pageId={page.id}
+      blocks={blocks}
+      contact={{
+        name: meta.contact_name,
+        email: meta.contact_email,
+        phone: meta.contact_phone
+      }}
+    />
   );
+}
+
+async function accentFor(pageId: string): Promise<string> {
+  const supabase = getServiceSupabase();
+  const { data } = await supabase
+    .from('bio_pages')
+    .select('accent_color')
+    .eq('id', pageId)
+    .maybeSingle();
+  const raw = (data as { accent_color?: string } | null)?.accent_color ?? '#0070f3';
+  return safeAccentColor(raw) ?? '#0070f3';
+}
+
+async function loadLegacy(pageId: string, handle: string) {
+  const supabase = getServiceSupabase();
+  const { data } = await supabase
+    .from('bio_pages')
+    .select('display_name,bio,avatar_url')
+    .eq('id', pageId)
+    .maybeSingle();
+  if (!data) return null;
+
+  const { data: linkRows } = await supabase
+    .from('links')
+    .select('slug,title,notes,destination_url')
+    .eq('show_on_bio', true)
+    .eq('is_active', true)
+    .eq('created_by', (data as { created_by?: string }).created_by ?? '')
+    .order('bio_order', { ascending: true });
+
+  const links: PageLink[] = (linkRows ?? [])
+    .filter((l) => {
+      const href = safeBioHref((l as { destination_url: string }).destination_url);
+      return href !== null;
+    })
+    .map((l) => ({
+      slug: (l as { slug: string }).slug,
+      label: (l as { title?: string; slug: string }).title || (l as { slug: string }).slug,
+      description: (l as { notes?: string }).notes ?? '',
+      href: safeBioHref((l as { destination_url: string }).destination_url) as string
+    }));
+
+  return {
+    handle,
+    displayName: (data as { display_name: string }).display_name,
+    bio: (data as { bio: string }).bio,
+    avatarUrl: safeBioHref((data as { avatar_url: string }).avatar_url) ?? '',
+    links
+  };
 }

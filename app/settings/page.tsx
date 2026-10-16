@@ -3,6 +3,9 @@ import { getServiceSupabase } from '@/lib/db/supabase-server';
 import { createApiKeyAction, revokeApiKeyAction, rotateApiKeyAction } from '@/app/actions/api-keys';
 import { CreateLabelForm } from '@/components/create-label-form';
 import { BioPageForm } from '@/components/bio-page-form';
+import { PageEditorPanel } from '@/components/page-editor-panel';
+import { loadPageForEditor } from '@/app/actions/page-editor';
+import { hasUnpublishedChanges } from '@/lib/pages/lifecycle';
 import { DeleteLabelButton } from '@/components/delete-label-button';
 import { SettingsForm } from '@/components/settings-form';
 import { RotateKeyButton } from '@/components/rotate-key-button';
@@ -34,11 +37,26 @@ export default async function SettingsPage() {
 
   const { data: bioRow } = await supabase
     .from('bio_pages')
-    .select('handle, display_name, bio, avatar_url, theme, accent_color, is_published')
+    .select(
+      'id, handle, display_name, bio, avatar_url, theme, accent_color, is_published, draft_blocks, published_blocks'
+    )
     .eq('created_by', owner.id)
     .maybeSingle();
 
   const siteUrl = (process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/\/$/, '');
+
+  // Block editor state for the page, if one exists. Kept alongside the legacy
+  // fixed-layout form below so an existing bio page still works unchanged.
+  const pageEditor = bioRow
+    ? await loadPageForEditor()
+    : null;
+  const pageUnpublished = bioRow
+    ? hasUnpublishedChanges({
+        ...(bioRow as unknown as Parameters<typeof hasUnpublishedChanges>[0]),
+        draft_blocks: (bioRow as { draft_blocks: unknown }).draft_blocks,
+        published_blocks: (bioRow as { published_blocks: unknown }).published_blocks
+      })
+    : false;
 
   const bio = {
     handle: (bioRow?.handle as string) ?? '',
@@ -150,7 +168,27 @@ export default async function SettingsPage() {
       </section>
 
       <section className="mt-8">
-        <BioPageForm initial={bio} />
+        {pageEditor?.page ? (
+        <PageEditorPanel
+          pageId={pageEditor.page.id}
+          initialBlocks={pageEditor.blocks as never[]}
+          stats={pageEditor.stats}
+          blockStats={pageEditor.blockStats}
+          isPublished={pageEditor.page.is_published}
+          hasUnpublished={pageUnpublished}
+          handle={pageEditor.handle}
+          publicUrl={`${siteUrl}/@${pageEditor.handle}`}
+        />
+      ) : null}
+
+      <h2 className="text-lg font-semibold">Bio page (simple)</h2>
+      <p className="text-sm text-[var(--muted)]">
+        The basic profile form. The block editor above is the full version; this stays available
+        because a page that has never been published through the editor keeps rendering with this
+        layout.
+      </p>
+
+      <BioPageForm initial={bio} />
       </section>
     </div>
   );

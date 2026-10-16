@@ -6,19 +6,7 @@
       "schedule": "17 3 * * *"
     }
   ],
-  "regions": ["bom1"],
-  "functions": {
-    "app/[slug]/route.ts": {
-      "runtime": "nodejs22.x",
-      "regions": ["bom1"]
-    },
-    "app/api/health/route.ts": {
-      "runtime": "nodejs22.x",
-      "regions": ["bom1"]
-    },
-    "app/api/ready/route.ts": {
-      "runtime": "nodejs22.x",
-      "regions": ["bom1"]
-    }
-  }
+  "regions": [
+    "bom1"
+  ]
 }
