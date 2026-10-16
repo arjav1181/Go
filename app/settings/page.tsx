@@ -2,6 +2,7 @@ import { requireOwner } from '@/lib/auth/owner';
 import { getServiceSupabase } from '@/lib/db/supabase-server';
 import { createApiKeyAction, revokeApiKeyAction, rotateApiKeyAction } from '@/app/actions/api-keys';
 import { CreateLabelForm } from '@/components/create-label-form';
+import { BioPageForm } from '@/components/bio-page-form';
 import { DeleteLabelButton } from '@/components/delete-label-button';
 import { SettingsForm } from '@/components/settings-form';
 import { RotateKeyButton } from '@/components/rotate-key-button';
@@ -31,8 +32,27 @@ export default async function SettingsPage() {
   const activeKeys = (keys ?? []).filter((key) => !key.revoked_at);
   const revokedKeys = (keys ?? []).filter((key) => key.revoked_at);
 
+  const { data: bioRow } = await supabase
+    .from('bio_pages')
+    .select('handle, display_name, bio, avatar_url, theme, accent_color, is_published')
+    .eq('created_by', owner.id)
+    .maybeSingle();
+
+  const siteUrl = (process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/\/$/, '');
+
+  const bio = {
+    handle: (bioRow?.handle as string) ?? '',
+    displayName: (bioRow?.display_name as string) ?? '',
+    bio: (bioRow?.bio as string) ?? '',
+    avatarUrl: (bioRow?.avatar_url as string) ?? '',
+    theme: (bioRow?.theme as string) ?? 'minimal',
+    accentColor: (bioRow?.accent_color as string) ?? '#0070f3',
+    isPublished: (bioRow?.is_published as boolean) ?? false,
+    siteUrl
+  };
+
   return (
-    <div className="space-y-8">
+    <div className="mx-auto w-full max-w-5xl space-y-8 px-5 py-10">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
         <p className="text-sm text-[var(--muted)]">API access and alias domains.</p>
@@ -127,6 +147,10 @@ export default async function SettingsPage() {
           change or migration required. DNS and TLS for those hosts are yours to configure; this
           application never changes DNS.
         </p>
+      </section>
+
+      <section className="mt-8">
+        <BioPageForm initial={bio} />
       </section>
     </div>
   );

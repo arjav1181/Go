@@ -204,7 +204,8 @@ export const PERSISTED_EVENTS = {
   cronFailed: EVENTS.cronFailed,
   purgeCompleted: EVENTS.purgeCompleted,
   readyCheckFailed: EVENTS.readyCheckFailed,
-  rateLimitStoreUnavailable: EVENTS.rateLimitStoreUnavailable
+  rateLimitStoreUnavailable: EVENTS.rateLimitStoreUnavailable,
+  linkPasswordPrompted: 'links.password_prompted'
 } as const;
 
 export type PersistedEvent = (typeof PERSISTED_EVENTS)[keyof typeof PERSISTED_EVENTS];

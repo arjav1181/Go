@@ -1,4 +1,5 @@
 import { getServiceSupabase } from '@/lib/db/supabase-server';
+import { CAMPAIGN_PATTERN } from '@/lib/links/campaigns';
 import {
   resolveReferrerHost,
   resolveDeviceCategory,
@@ -14,6 +15,8 @@ export async function recordClick(input: {
   userAgent: string | null;
   /** Which weighted variant served the click; '' for the link/schedule target. */
   variantLabel?: string;
+  /** Owner's campaign label, or a per-visit marker; '' when untagged. */
+  campaign?: string | null;
   /** Aggregation dimensions for this owner; defaults to collecting both. */
   aggregation?: AggregationSettings;
 }): Promise<void> {
@@ -27,13 +30,18 @@ export async function recordClick(input: {
     const referrerHost = resolveReferrerHost(aggregation, input.referrer);
     const deviceCategory = resolveDeviceCategory(aggregation, input.userAgent);
     const variantLabel = (input.variantLabel ?? '').slice(0, 32);
+    // Re-validated here rather than trusted from the caller: a campaign reaches
+    // this module from a query string on one path. Anything off-pattern is
+    // dropped instead of sanitised, so no visitor-controlled text is persisted.
+    const campaign = CAMPAIGN_PATTERN.test(input.campaign ?? '') ? (input.campaign as string) : '';
     const supabase = getServiceSupabase();
     await supabase.rpc('increment_click', {
       p_link_id: input.linkId,
       p_day: day,
       p_referrer_host: referrerHost,
       p_device_category: deviceCategory,
-      p_variant_label: variantLabel
+      p_variant_label: variantLabel,
+      p_campaign: campaign
     });
   } catch {
     // Analytics failures must not break redirects or expose visitor data.

@@ -27,6 +27,18 @@ const contentSecurityPolicy = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+
+  /**
+   * `/@handle` is a nicer bio URL, but `@` is Next.js's parallel-route marker
+   * and cannot be a literal directory name. Rewrite it to an internal route.
+   *
+   * Slugs cannot contain `@` (the slug charset is `[a-z0-9_-]`), so this can
+   * never shadow a short link.
+   */
+  async rewrites() {
+    return [{ source: '/@:handle', destination: '/bio/:handle' }];
+  },
+
   // Pin the build root to this package. Without it, Turbopack walks up looking
   // for a lockfile and can resolve modules from an unrelated parent directory,
   // which produces a build that only works on the machine that made it.
