@@ -1,13 +1,28 @@
-# go. — owner-operated link shortener
+<div align="center">
 
-Short links on `go.arjav.is-cool.dev` with privacy-conscious aggregate analytics.
+# go.
 
-MIT licensed. See [`LICENSE`](./LICENSE).
+**Short links on a domain you own, with analytics that forget who clicked.**
+
+[Documentation](./app/docs) · [Privacy](./app/privacy) · [API](./API.md) ·
+[Security](./SECURITY.md) · [Contributing](./CONTRIBUTING.md)
+
+MIT licensed · self-hostable · no telemetry, ever
+
+</div>
+
+---
+
+A link shortener that stores no IP addresses, no cookies, no fingerprints and no
+visitor records. Built on Next.js 16, Supabase Auth/Postgres, and the
+[Vercel Geist](https://vercel.com/geist) design system.
 
 ## Stack
 Next.js 16 (App Router), TypeScript, Tailwind CSS, Supabase Auth/Postgres.
 
 ## Features
+
+### Links
 
 - **Short links** on a branded domain, with custom or generated slugs.
 - **Link lifecycle**: pause, expire, and clear `active` / `expiring soon` / `expired` /
@@ -31,6 +46,36 @@ Next.js 16 (App Router), TypeScript, Tailwind CSS, Supabase Auth/Postgres.
 - **Retention**: opt-in click-history pruning plus configurable aggregation.
 - **Owner-only API** at `/api/v1` with hashed, scoped, rotatable keys — see
   [`API.md`](./API.md).
+- **Password-protected links** — salted scrypt hashes; the destination is never
+  touched until the password verifies.
+- **Campaign markers** — label a link, get clicks grouped by campaign. The label
+  is forwarded to the destination's own analytics.
+- **Bulk import/export** — CSV with partial success: one bad row reports why and
+  the rest still import. Exports never contain passwords, only whether a link is
+  protected.
+
+### Public
+
+- **Link-in-bio pages** at `/@handle` — a public page listing the links you
+  choose, with layouts, an accent colour and a live preview. Only links you
+  explicitly switch on are ever shown.
+- **Branded 404** — your own title, message and link on dead slugs.
+
+### Platform
+
+- **Abuse controls that hold across instances** — sign-in, link creation and
+  editing, QR, export and failed redirects are limited in Postgres.
+- **Structured logs** with enforced redaction of secrets, cookies, API keys,
+  destinations and user agents.
+- **Health and readiness** endpoints suitable for a load balancer.
+
+### Privacy
+
+- **Aggregate analytics only.** Clicks by day, referrer *hostname*, and a coarse
+  device category. No IP addresses, no cookies, no fingerprints, no
+  visitor-level rows.
+- **Hash-based A/B bucketing**, so an experiment is reproducible from
+  configuration alone while storing nothing about the visitor.
 - **Alias domains** (opt-in via `ALIAS_DOMAINS`) — see the caveat below.
 
 ## Local development
@@ -164,6 +209,19 @@ Changing `EXPERIMENT_SALT` re-buckets everyone.
 Click-history retention is **off by default**. When enabled, a daily Vercel Cron
 hits `/api/cron/purge`, which requires `CRON_SECRET` and refuses to run if that
 variable is unset. Nothing runs without it.
+
+## Architecture in one paragraph
+
+Every request to `/[slug]` is a single embedded database query returning the link
+plus any schedule, variants and rules that apply. If that query fails — a
+partially migrated database, for instance — a per-table fallback keeps the link
+working. Expiry and activation are decided first, so a dead link never reaches
+the redirect engine. Analytics are written *after* the 302 is sent: a failure to
+record a click is logged, never surfaced. Row level security is enabled on every
+table with **no policies**, so the anon key reads nothing and only the service
+role can read data at all.
+
+See [`ARCHITECTURE.md`](./ARCHITECTURE.md) for the full picture.
 
 ## Operations
 

@@ -148,6 +148,34 @@ These were checked by running them, not by reading them:
   only worked because an unrelated parent directory happened to provide it. A
   clean `npm ci` build now succeeds.
 
+## Threats considered after the product surfaces landed
+
+Link-in-bio pages introduced the first unauthenticated read path, so:
+
+- **What a bio page can leak** — only slug, title, destination and click count.
+  Notes, campaign labels, whether a link is password-protected, owner ids and
+  expiry are never projected. Password state in particular is never revealed, so
+  a bio page cannot be used to discover which links are protected.
+- **A bio page cannot resurrect a dead link** — a link is listed only if it is
+  active and unexpired, so the page cannot contain a row a visitor cannot follow.
+- **The bio handle cannot shadow a route** — reserved handles are rejected, and
+  `@` is not in the slug charset, so `/@x` can never collide with `/[slug]`.
+- **Owner-supplied text on a public page** — the accent colour is only honoured
+  when it is a literal hex triple, and the destination href is restricted to
+  http/https. The branded 404 escapes all three of its fields.
+
+### Residual risks from the product work
+
+1. **A password-protected link is still brute-forceable offline** if the
+   database is exfiltrated. The policy requires two character classes and six
+   characters, which defeats casual guessing, not a determined attacker.
+2. **`show_on_bio` is an owner action, not a safety control.** An owner can
+   publish a link to anything. The feature is an explicit choice by the same
+   person who already controls the destination.
+3. **Bulk import is an amplification surface.** It is capped at 2000 rows and
+   owner-only, but an owner (or a compromised owner session) can create many
+   links at once.
+
 ## Known gaps
 
 1. **One dev-only advisory, no upstream fix.** `braces` (via

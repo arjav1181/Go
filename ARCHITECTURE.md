@@ -427,7 +427,36 @@ denylist is only as good as the names it anticipates, so `destination` and `note
 were added alongside `destination_url` and `notes`. Free-text values are scanned
 for token-shaped substrings as a second layer.
 
-## 18. Extension seams (not initial-release requirements)
+## 18. Product surfaces added after launch
+
+**Public read path.** Link-in-bio pages are the only content served
+unauthenticated. The projection in `lib/links/bio.ts` returns slug, title,
+destination and click count and nothing else; notes, campaigns, password state,
+owner ids and expiry never leave the database. A link appears only when the owner
+sets `show_on_bio`, the link is active, and it has not expired — so a bio page
+cannot contain a row a visitor cannot follow.
+
+`/@handle` is a rewrite, not a directory. `@` is Next.js's parallel-route marker
+and cannot be a literal path segment.
+
+**Secrets on the redirect path.** A password-protected link is checked before the
+redirect engine loads, so a wrong guess reveals neither the destination nor the
+existence of a schedule or experiment. The hash is scrypt rather than SHA-256:
+a link password is human-chosen and therefore guessable, and a fast hash would
+not survive an offline attempt against a leaked database.
+
+**Two classes of campaign input.** The owner's campaign label is forwarded to the
+destination's analytics. A per-visit `?c=` marker is read for local grouping but
+is never propagated outward — forwarding it would let any visitor write arbitrary
+values into a third party's analytics. Both are pattern-checked at the database
+function as well as in application code, because that function is SECURITY
+DEFINER.
+
+**Failure-path decoration.** The branded 404 is only consulted on a 404, so a
+redirect never pays for it. Its three fields are escaped and the optional link is
+restricted to http/https.
+
+## 19. Extension seams (not initial-release requirements)
 
 Design modules so these could be added later without a rewrite, but do not implement them until the MVP works:
 

@@ -194,6 +194,23 @@ API, alias-domain routing, and retention/aggregation controls.
 - **API hardening** — least-privilege scopes, key rotation, per-key rate limits, 8 KiB body
   caps, and a single consistent error envelope. See `API.md`.
 
+### Phase 6 — Product
+
+**Status: implemented.**
+
+Closing the gap between "works" and "is a product someone would keep using":
+
+- **Link-in-bio pages** at `/@handle` — a genuinely public surface, so the data
+  projection is narrow by construction and opt-in per link.
+- **Password-protected links** — scrypt, constant-time, gated before the redirect
+  engine so a wrong guess reveals nothing.
+- **Campaign markers** — a label that becomes an analytics dimension and is
+  forwarded to the destination, without accepting arbitrary visitor input.
+- **Bulk import/export** with per-row validation and partial success.
+- **Branded 404** on the short domain, applied only to the failure path.
+- **Vercel Geist** adopted wholesale: real Geist Sans/Mono, the published
+  ten-step colour scale, official materials and typography scale.
+
 ### Phase 5 — Launch
 
 **Status: implemented; deployment blocked on provider access.**
