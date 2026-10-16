@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test": "tsc -p tsconfig.test.json && node --test .test-dist/tests/*.test.js",
+    "test": "tsc -p tsconfig.test.json && node --require ./tests/helpers/alias.cjs --test .test-dist/tests/*.test.js",
     "db:migrate": "sh -c 'set -e; for f in supabase/migrations/*.sql; do echo \"-> $f\"; psql \"$SUPABASE_DB_URL\" -v ON_ERROR_STOP=1 -q -f \"$f\"; done; echo \"migrations applied\"'",
     "db:reset": "sh -c 'for f in supabase/migrations/*.sql; do psql \"$SUPABASE_DB_URL\" -v ON_ERROR_STOP=1 -q -f \"$f\"; done'",
     "docker:up": "docker compose up --build",
