@@ -82,7 +82,7 @@ export default function HomePage() {
       <section className="relative overflow-hidden border-b border-[var(--ds-gray-400)]">
         <div className="grid-guide absolute inset-0" aria-hidden />
         <Container className="relative pb-24 pt-20 sm:pb-32 sm:pt-28">
-          <div className="max-w-3xl">
+          <div className="mx-auto max-w-4xl text-center sm:text-left">
             <p className="mb-7 inline-flex items-center gap-2 rounded-full border border-[var(--ds-gray-400)] bg-[var(--ds-background-100)] px-3 py-1 text-label-12 text-secondary">
               <span className="h-1.5 w-1.5 rounded-full bg-[var(--ds-green-500)]" aria-hidden />
               Owner-operated · no tracking
@@ -106,7 +106,31 @@ export default function HomePage() {
               <Link href="/docs" className="btn btn-primary btn-lg">
                 Read the docs
               </Link>
+              <Link href="/login" className="btn btn-secondary btn-lg">
+                Sign in
+              </Link>
             </div>
+
+            {/**
+             * The hero was a single left-aligned column in a full-width
+             * container, which left roughly half the viewport empty on a wide
+             * screen and read as an unfinished layout. Tightening the measure
+             * and centring the block gives the headline a deliberate shape
+             * instead of a ragged right edge against a lot of whitespace.
+             */}
+            <dl className="mt-16 grid max-w-2xl grid-cols-2 gap-x-8 gap-y-6 sm:grid-cols-4">
+              {[
+                ['No IP storage', 'Geo from the edge'],
+                ['No cookies', 'No fingerprint'],
+                ['Self-hosted', 'Docker ready'],
+                ['Scoped API', 'Keys + rate limits']
+              ].map(([term, detail]) => (
+                <div key={term}>
+                  <dt className="text-label-14 font-semibold text-primary">{term}</dt>
+                  <dd className="mt-0.5 text-label-13 text-secondary">{detail}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
         </Container>
       </section>

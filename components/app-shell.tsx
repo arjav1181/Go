@@ -46,7 +46,13 @@ export default function AppShell({
         { href: '/tags', label: 'Organize' },
         { href: '/settings', label: 'Settings' }
       ]
-    : [{ href: '/login', label: 'Sign in' }];
+    // Logged out: informational pages only. Sign-in lives in the header action
+    // area as a button — listing it here too rendered it twice.
+    : [
+        { href: '/docs', label: 'Docs' },
+        { href: '/privacy', label: 'Privacy' },
+        { href: '/terms', label: 'Terms' }
+      ];
 
 
   return (
