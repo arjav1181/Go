@@ -120,10 +120,11 @@ export default function AppShell({
                 </form>
               </>
             ) : (
-              // Logged out, the only route into the product is /login and it
-              // was unreachable: the desktop nav rendered nothing at all, so a
-              // visitor who did not know the URL had no way to sign in.
-              <Link href="/login" className="btn btn-ghost hidden sm:inline-flex">
+              // Logged out, the only route into the product is /login, and it
+              // has to be reachable on every screen size. It was `hidden
+              // sm:inline-flex` while the mobile menu existed only for signed-in
+              // users, which left phone visitors with no way in at all.
+              <Link href="/login" className="btn btn-ghost">
                 Sign in
               </Link>
             )}
