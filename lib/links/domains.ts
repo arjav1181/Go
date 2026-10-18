@@ -8,7 +8,14 @@
  *
  * TLS and DNS for extra domains are the operator's responsibility; this code
  * never touches DNS.
+ *
+ * Since migration 0017 a verified custom domain is also honoured, so adding one
+ * through the API does not require a redeploy to take effect. The env-var route
+ * is kept because it is how a domain is aliased before its DNS propagates, and
+ * because it costs nothing.
  */
+
+import { getServiceSupabase } from '@/lib/db/supabase-server';
 
 export const ALIAS_DOMAINS_ENV = 'ALIAS_DOMAINS';
 
@@ -103,4 +110,58 @@ export function resolveHostScope(host: string | null, config: DomainConfig): Hos
   }
 
   return { domain: '', isAlias: false };
+}
+/**
+ * Root-router lookup for verified custom domains.
+ *
+ * A visitor who types only the domain (no path) should be sent to the page the
+ * owner configured, which is the spec's "root router". Returns null for
+ * anything unverified, disabled or archived so a domain that loses
+ * verification stops serving traffic rather than quietly continuing.
+ *
+ * Deliberately a single indexed read on the hot redirect path: it runs for
+ * every visitor whose host is not the canonical domain, and a slow lookup here
+ * would tax every request on a branded domain.
+ */
+export async function rootRedirectFor(host: string | null): Promise<string | null> {
+  const normalized = normalizeHost(host);
+  if (!normalized) return null;
+
+  const supabase = getServiceSupabase();
+  const { data, error } = await supabase
+    .from('custom_domains')
+    .select('root_redirect_url')
+    .eq('hostname', normalized)
+    .eq('status', 'verified')
+    .eq('archived', false)
+    .not('root_redirect_url', 'is', null)
+    .maybeSingle();
+
+  if (error || !data) return null;
+  const target = (data as { root_redirect_url?: string | null }).root_redirect_url;
+  return target && target.length > 0 ? target : null;
+}
+
+/**
+ * Should this host be treated as an alias even though it is not in
+ * `ALIAS_DOMAINS`?
+ *
+ * A verified custom domain is authoritative, so it must resolve links the same
+ * way the canonical host does. Without this, adding a domain would verify
+ * successfully and then still 404 every link created on it.
+ */
+export async function isVerifiedCustomDomain(host: string | null): Promise<boolean> {
+  const normalized = normalizeHost(host);
+  if (!normalized) return false;
+
+  const supabase = getServiceSupabase();
+  const { data, error } = await supabase
+    .from('custom_domains')
+    .select('id')
+    .eq('hostname', normalized)
+    .eq('status', 'verified')
+    .eq('archived', false)
+    .maybeSingle();
+
+  return !error && Boolean(data);
 }

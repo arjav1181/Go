@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { assertOwner } from '@/lib/auth/owner';
 import { getServiceSupabase } from '@/lib/db/supabase-server';
+import { planForOwner, countLinkCreates, checkQuota } from '@/lib/tenancy/quota';
 import {
   validateCustomSlug,
   normalizeDestinationUrl,
@@ -160,6 +161,29 @@ export async function createLink(_prev: ActionResult, formData: FormData): Promi
   }
 
   const supabase = getServiceSupabase();
+
+  /**
+   * Quota gate, before anything is written.
+   *
+   * Checked here rather than only in the UI so it holds for the API and the CSV
+   * importer too — a plan limit enforced by a form is not a plan limit.
+   *
+   * Fails open: `countLinkCreates` returns null when the count cannot be read,
+   * and `checkQuota` treats that as allowance. A missing quota check is an
+   * accounting error; the same refusal on the permission check would be a
+   * security hole, so the two deliberately fail in opposite directions.
+   */
+  const plan = await planForOwner(owner.id);
+  const used = await countLinkCreates(owner.id);
+  if (used !== null) {
+    const decision = checkQuota(plan, 'link_create', used);
+    if (!decision.allowed) {
+      return {
+        ok: false,
+        message: decision.reason ?? 'Monthly link limit reached for your plan.'
+      };
+    }
+  }
 
   for (let attempt = 0; attempt < 5; attempt += 1) {
     const candidate = attempt === 0 ? slug : generateRandomSlug();

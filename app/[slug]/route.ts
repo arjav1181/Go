@@ -6,7 +6,12 @@ import { decideRedirect } from '@/lib/links/resolve';
 import { logEvent, logError, EVENTS, correlationIdFrom, setCorrelationId } from '@/lib/log';
 import { checkRateLimit, policyFor, callerKeyFromHeaders } from '@/lib/ratelimit/limiter';
 import { resolveRedirectTarget, experimentSalt } from '@/lib/links/resolve-target';
-import { domainConfigFromEnv, resolveHostScope } from '@/lib/links/domains';
+import {
+  domainConfigFromEnv,
+  resolveHostScope,
+  rootRedirectFor,
+  isVerifiedCustomDomain
+} from '@/lib/links/domains';
 import { loadLinkWithConfig } from '@/lib/links/redirect-config';
 import { after } from 'next/server';
 import { verifyLinkPassword } from '@/lib/links/passwords';
@@ -217,17 +222,63 @@ export async function GET(request: Request, context: { params: Promise<{ slug: s
     return true;
   };
 
+  /**
+   * Root router.
+   *
+   * A visitor who types only a branded domain sends no path at all, so there is
+   * no slug to resolve and this branch would otherwise be a plain 404. Sending
+   * them to the owner's configured page is the spec's "root router".
+   *
+   * It has to sit *above* the empty-slug guard below, not inside the main
+   * block — that guard already rejects a missing slug, so a root check placed
+   * after it can never execute.
+   */
+  if (!slug) {
+    const root = await rootRedirectFor(request.headers.get('host'));
+    if (root) {
+      return NextResponse.redirect(root, {
+        status: 302,
+        headers: { 'Cache-Control': 'public, max-age=300' }
+      });
+    }
+  }
+
   if (!slug || slug.includes('/') || slug.includes('\\')) {
     return htmlResponse(404, 'Link not found', 'This short link does not exist.');
   }
 
   try {
+    const hostHeader = request.headers.get('host');
+
     // Alias domains are opt-in via ALIAS_DOMAINS; with the feature off this
     // always resolves to the canonical domain, exactly as before.
-    const hostScope = resolveHostScope(
-      request.headers.get('host'),
+    let hostScope = resolveHostScope(
+      hostHeader,
       domainConfigFromEnv(process.env, process.env.NEXT_PUBLIC_APP_URL)
     );
+
+    /**
+     * A verified custom domain is authoritative even though it is not in the
+     * env list. Without this, adding a domain would verify successfully and
+     * then still 404 every link created on it, because slug lookups on an alias
+     * are scoped by domain.
+     *
+     * Only the unrecognised-host case is upgraded — a host already known to be
+     * the canonical domain must never become an alias of itself.
+     */
+    if (!hostScope.isAlias && hostHeader) {
+      const normalizedHost = hostHeader.split(':')[0].toLowerCase();
+      const canonical = (() => {
+        try {
+          return new URL(process.env.NEXT_PUBLIC_APP_URL ?? '').hostname.toLowerCase();
+        } catch {
+          return '';
+        }
+      })();
+      if (normalizedHost && normalizedHost !== canonical && (await isVerifiedCustomDomain(normalizedHost))) {
+        hostScope = { domain: normalizedHost, isAlias: true };
+      }
+    }
 
     /**
      * One round trip for the link and all of its routing config.

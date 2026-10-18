@@ -4,6 +4,7 @@ import { getServiceSupabase } from '@/lib/db/supabase-server';
 import { checkRateLimit, policyFor, callerKeyFromHeaders } from '@/lib/ratelimit/limiter';
 import { logEvent, EVENTS } from '@/lib/log';
 import { parseCustomizations, DEFAULT_CUSTOMIZATIONS } from '@/lib/qr/customizations';
+import { planForOwner, countQrCreates, checkQuota } from '@/lib/tenancy/quota';
 
 export const dynamic = 'force-dynamic';
 
@@ -91,6 +92,23 @@ export async function POST(request: Request) {
   }
 
   const parsedCustomizations = parseCustomizations(body.render_customizations ?? body.customizations);
+
+  /**
+   * Quota gate. Same reasoning as link creation: enforced in the API rather
+   * than the designer, so it cannot be bypassed by calling the endpoint
+   * directly, and it fails open when the count cannot be read.
+   */
+  const plan = await planForOwner(owner.id);
+  const qrUsed = await countQrCreates(owner.id);
+  if (qrUsed !== null) {
+    const decision = checkQuota(plan, 'qr_create', qrUsed);
+    if (!decision.allowed) {
+      return NextResponse.json(
+        { error: { message: decision.reason ?? 'Monthly QR code limit reached for your plan.' } },
+        { status: 429 }
+      );
+    }
+  }
 
   const supabase = getServiceSupabase();
 

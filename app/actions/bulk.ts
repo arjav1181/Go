@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 
 import { requireOwner } from '@/lib/auth/owner';
 import { getServiceSupabase } from '@/lib/db/supabase-server';
+import { planForOwner, countLinkCreates, checkQuota } from '@/lib/tenancy/quota';
 import { hashLinkPassword, validateLinkPassword } from '@/lib/links/passwords';
 import { normalizeCampaign } from '@/lib/links/campaigns';
 import { validateHandle, isReservedHandle, normalizeHandle } from '@/lib/links/bio';
@@ -11,7 +12,7 @@ import { parseLinkImport, toLinkCsv, type ImportOutcome } from '@/lib/links/bulk
 import { validateCustomSlug, normalizeDestinationUrl } from '@/lib/links/validation';
 
 export type BulkResult =
-  | { ok: true; created: number; skipped: ImportOutcome[]; total: number }
+  | { ok: true; created: number; skipped: ImportOutcome[]; total: number; truncated: number }
   | { ok: false; error: string };
 
 /**
@@ -48,6 +49,7 @@ export async function importLinks(
 
   const seen = new Set<string>();
   const insertable: Array<Record<string, unknown>> = [];
+  let truncated = 0;
 
   for (const row of parsed.created) {
     // Guard against duplicates *within* the same file as well as the database.
@@ -92,6 +94,33 @@ export async function importLinks(
     });
   }
 
+  /**
+   * Quota gate for bulk import.
+   *
+   * A batch is truncated to the remaining allowance rather than rejected whole.
+   * An owner with 500 links left on a 3,000 plan uploading 900 rows should get
+   * the 500 that fit and a clear message about the other 400 — not lose the
+   * whole upload because part of it was over the line.
+   */
+  if (insertable.length > 0) {
+    const plan = await planForOwner(owner.id);
+    const used = await countLinkCreates(owner.id);
+    if (used !== null) {
+      const decision = checkQuota(plan, 'link_create', used);
+      if (!decision.allowed) {
+        return {
+          ok: false,
+          error: decision.reason ?? 'Monthly link limit reached for your plan.'
+        };
+      }
+      const room = decision.remaining;
+      if (room !== null && insertable.length > room) {
+        truncated = insertable.length - room;
+        insertable.splice(room);
+      }
+    }
+  }
+
   if (insertable.length > 0) {
     const { error } = await supabase.from('links').insert(insertable);
     if (error) {
@@ -105,7 +134,10 @@ export async function importLinks(
     filename: file.name.slice(0, 120),
     total_rows: parsed.total,
     created_rows: insertable.length,
-    skipped_rows: parsed.failed.length,
+    // Rows dropped for any reason — invalid, duplicate, or over quota — are
+    // all "skipped" from the caller's point of view, and `truncated` is the
+    // subset of those that were valid but hit the plan ceiling.
+    skipped_rows: parsed.failed.length + truncated,
     failed_rows: 0,
     created_by: owner.id
   });
@@ -113,7 +145,13 @@ export async function importLinks(
   revalidatePath('/dashboard');
   revalidatePath('/links/import');
 
-  return { ok: true, created: insertable.length, skipped: parsed.failed, total: parsed.total };
+  return {
+    ok: true,
+    created: insertable.length,
+    skipped: parsed.failed,
+    total: parsed.total,
+    truncated
+  };
 }
 
 /**

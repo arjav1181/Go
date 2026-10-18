@@ -12,7 +12,9 @@
     "db:migrate": "sh -c 'set -e; for f in supabase/migrations/*.sql; do echo \"-> $f\"; psql \"$SUPABASE_DB_URL\" -v ON_ERROR_STOP=1 -q -f \"$f\"; done; echo \"migrations applied\"'",
     "db:reset": "sh -c 'for f in supabase/migrations/*.sql; do psql \"$SUPABASE_DB_URL\" -v ON_ERROR_STOP=1 -q -f \"$f\"; done'",
     "docker:up": "docker compose up --build",
-    "docker:down": "docker compose down"
+    "docker:down": "docker compose down",
+    "check:fast": "bun test tests/ && tsc --noEmit && eslint .",
+    "test:fast": "bun test tests/"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",

@@ -67,8 +67,7 @@ export default function AppShell({
             <span>go.</span>
           </Link>
 
-          {email ? (
-            <nav className="hidden items-center gap-1 sm:flex" aria-label="Main">
+          <nav className="hidden items-center gap-1 sm:flex" aria-label="Main">
               {nav.map((item) => {
                 const active =
                   pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -87,14 +86,12 @@ export default function AppShell({
                   </Link>
                 );
               })}
-            </nav>
-          ) : null}
+          </nav>
 
           <div className="ml-auto flex items-center gap-1.5">
             {email ? (
               <>
                 <CreateLinkShortcut />
-                <ThemeToggle />
 
             <button
               type="button"
@@ -116,7 +113,16 @@ export default function AppShell({
                   </button>
                 </form>
               </>
-            ) : null}
+            ) : (
+              // Logged out, the only route into the product is /login and it
+              // was unreachable: the desktop nav rendered nothing at all, so a
+              // visitor who did not know the URL had no way to sign in.
+              <Link href="/login" className="btn btn-ghost hidden sm:inline-flex">
+                Sign in
+              </Link>
+            )}
+
+            <ThemeToggle />
           </div>
 
           {/* Mobile navigation. The desktop nav is display:none below sm, so
