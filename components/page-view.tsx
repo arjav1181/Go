@@ -166,15 +166,12 @@ function Block({
 
     case 'link': {
       // Either a Bitly link (measured, editable) or an external href.
-      if (block.linkId && !block.href) {
-        return (
-          <div className="page-block-link">
-            <span className="page-block-unresolved" title="Attach this link before publishing">
-              {block.label || 'Unlinked'}
-            </span>
-          </div>
-        );
-      }
+      /**
+       * A linkId with no href here means the target could not be resolved —
+       * the link was deleted, disabled or expired. The block is omitted rather
+       * than rendered as a dead button, so the page never advertises a
+       * destination the redirect route would refuse to serve.
+       */
       const href = block.href ? safeHref(block.href) : null;
       if (!href) return null;
       return (

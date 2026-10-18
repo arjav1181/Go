@@ -1,5 +1,6 @@
 import { getServiceSupabase } from '@/lib/db/supabase-server';
 import { CAMPAIGN_PATTERN } from '@/lib/links/campaigns';
+import { isReservedReferrer } from './device-category';
 import {
   resolveReferrerHost,
   resolveDeviceCategory,
@@ -26,6 +27,15 @@ export async function recordClick(input: {
   variantLabel?: string;
   /** Owner's campaign label, or a per-visit marker; '' when untagged. */
   campaign?: string | null;
+  /**
+   * First-party referrer label to use instead of one derived from the request,
+   * for events the service originates itself: a QR scan or a page-button click.
+   *
+   * Restricted to the reserved labels in `device-category`. That restriction is
+   * the whole point — without it this would be an unauthenticated way to write
+   * an arbitrary referrer string onto any link's analytics.
+   */
+  syntheticReferrer?: string | null;
   /** Aggregation dimensions for this owner; defaults to collecting both. */
   aggregation?: AggregationSettings;
 }): Promise<void> {
@@ -36,7 +46,17 @@ export async function recordClick(input: {
       input.aggregation ??
       (input.ownerId ? (await getCachedOwnerSettings(input.ownerId)).aggregation : DEFAULT_AGGREGATION);
 
-    const referrerHost = resolveReferrerHost(aggregation, input.referrer);
+    /**
+     * A synthetic referrer wins over the header-derived one, but only after
+     * being checked against the reserved list. Falling through to the normal
+     * resolution rather than throwing means an unexpected value degrades to real
+     * attribution instead of dropping the click.
+     */
+    const synthetic = input.syntheticReferrer ?? '';
+    const referrerHost =
+      isReservedReferrer(synthetic) && aggregation.track_referrer
+        ? synthetic
+        : resolveReferrerHost(aggregation, input.referrer);
     const deviceCategory = resolveDeviceCategory(aggregation, input.userAgent);
     const variantLabel = (input.variantLabel ?? '').slice(0, 32);
     // Re-validated here rather than trusted from the caller: a campaign reaches

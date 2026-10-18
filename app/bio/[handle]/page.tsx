@@ -8,6 +8,7 @@ import {
 } from '@/lib/pages/lifecycle';
 import { safeAccentColor, safeBioHref, normalizeHandle } from '@/lib/links/bio-rules';
 import { recordPageView } from '@/lib/pages/analytics';
+import { resolveBlockTargets, applyTargets } from '@/lib/pages/targets';
 import { PageView, type PageLink } from '@/components/page-view';
 
 type Params = { params: Promise<{ handle: string }> };
@@ -118,6 +119,14 @@ export default async function BioPageRoute({ params }: Params) {
 
   await recordPageView(page.id);
 
+  /**
+   * Link-backed blocks carry a linkId, not a URL, so they need resolving before
+   * they can be rendered. One batched query for the whole page rather than one
+   * per block, on a path every visitor takes.
+   */
+  const targets = await resolveBlockTargets(blocks);
+  const renderable = applyTargets(blocks, targets);
+
   return (
     <PageView
       handle={page.handle as string}
@@ -126,7 +135,7 @@ export default async function BioPageRoute({ params }: Params) {
       avatarUrl={meta.avatar_url}
       accentColor={accent}
       pageId={page.id}
-      blocks={blocks}
+      blocks={renderable}
       contact={{
         name: meta.contact_name,
         email: meta.contact_email,
