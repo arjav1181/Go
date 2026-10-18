@@ -92,16 +92,14 @@ export function PageEditorPanel(props: PageEditorPanelProps) {
       <div className="page-editor-schedule">
         <label>
           <span>Publish at (optional)</span>
-          <input
-            type="datetime-local"
+          <input className="input"             type="datetime-local"
             value={scheduledPublishAt}
             onChange={(e) => setScheduledPublishAt(e.target.value)}
           />
         </label>
         <label>
           <span>Unpublish at (optional)</span>
-          <input
-            type="datetime-local"
+          <input className="input"             type="datetime-local"
             value={scheduledUnpublishAt}
             onChange={(e) => setScheduledUnpublishAt(e.target.value)}
           />

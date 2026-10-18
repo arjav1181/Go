@@ -203,12 +203,10 @@ export function AnalyticsPanel({
         <div className="card p-4">
           <div className="mb-3 flex items-center justify-between gap-2">
             <h3 className="text-heading-16 text-[color:var(--ds-gray-1000)]">Breakdown</h3>
-            <select
-              value={xDimension}
+            <select className="select rounded-md border border-[var(--ds-gray-400)] bg-transparent px-2 py-1 text-label-13" value={xDimension}
               onChange={(e) => setXDimension(e.target.value as Dimension)}
               aria-label="Breakdown dimension"
-              className="rounded-md border border-[var(--ds-gray-400)] bg-transparent px-2 py-1 text-label-13"
-            >
+               >
               {DIMENSIONS.map((dimension) => (
                 <option key={dimension} value={dimension}>
                   by {DIMENSION_LABELS[dimension].toLowerCase()}
@@ -225,12 +223,10 @@ export function AnalyticsPanel({
             <h3 className="text-heading-16 text-[color:var(--ds-gray-1000)]">
               {DIMENSION_LABELS[yDimension]} by {DIMENSION_LABELS[xDimension].toLowerCase()}
             </h3>
-            <select
-              value={yDimension}
+            <select className="select rounded-md border border-[var(--ds-gray-400)] bg-transparent px-2 py-1 text-label-13" value={yDimension}
               onChange={(e) => setYDimension(e.target.value as Dimension)}
               aria-label="Comparison dimension"
-              className="rounded-md border border-[var(--ds-gray-400)] bg-transparent px-2 py-1 text-label-13"
-            >
+               >
               {DIMENSIONS.filter((d) => d !== xDimension).map((dimension) => (
                 <option key={dimension} value={dimension}>
                   {DIMENSION_LABELS[dimension]}

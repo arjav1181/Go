@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { CreateLinkShortcut } from '@/components/create-link-shortcut';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 const CONTACT_EMAIL =
   process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? 'hello@go.arjav.is-cool.dev';
@@ -93,7 +94,9 @@ export default function AppShell({
             {email ? (
               <>
                 <CreateLinkShortcut />
-                <button
+                <ThemeToggle />
+
+            <button
               type="button"
               className="btn btn-ghost btn-icon sm:hidden"
               aria-expanded={menuOpen}

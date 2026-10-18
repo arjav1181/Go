@@ -58,29 +58,25 @@ export default function LoginForm() {
       ) : null}
       <div className="space-y-1.5">
         <label htmlFor="email" className="block text-label-14 text-primary">Email</label>
-        <input
-          id="email"
+        <input className="input" id="email"
           name="email"
           type="email"
           autoComplete="email"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="input"
-        />
+           />
       </div>
       <div className="space-y-1.5">
         <label htmlFor="password" className="block text-label-14 text-primary">Password</label>
-        <input
-          id="password"
+        <input className="input" id="password"
           name="password"
           type="password"
           autoComplete="current-password"
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="input"
-        />
+           />
       </div>
       <button type="submit" disabled={loading} className="btn btn-primary btn-lg w-full">
         {loading ? 'Signing in…' : 'Sign in'}

@@ -82,15 +82,13 @@ export default function LinkForm({
           </>
         ) : (
           <>
-            <input
-              id="slug"
+            <input className="input w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-sm" id="slug"
               name="slug"
               type="text"
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
               placeholder="leave blank to generate"
-              className="w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-sm"
-            />
+               />
             <p className="text-xs text-[var(--muted)]">
               Preview: <span className="font-mono">{appUrl.replace(/\/$/, '')}/{previewSlug}</span>
             </p>

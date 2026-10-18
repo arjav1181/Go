@@ -66,16 +66,14 @@ export function BulkManager() {
               : 'border-[var(--ds-gray-400)]'
           }`}
         >
-          <input
-            ref={inputRef}
+          <input className="input input-file sr-only" ref={inputRef}
             id="import-file"
             name="file"
             type="file"
             accept=".csv,text/csv"
             required
             onChange={(e) => setFilename(e.target.files?.[0]?.name ?? '')}
-            className="sr-only"
-          />
+             />
           <label
             htmlFor="import-file"
             className="btn btn-secondary cursor-pointer"

@@ -33,15 +33,13 @@ export function RulePreview({ linkId }: { linkId: string }) {
         <label htmlFor="preview-query" className="text-sm font-medium">
           Test a request
         </label>
-        <input
-          id="preview-query"
+        <input className="input w-full rounded-md border border-[var(--border)] bg-[var(--bg)] px-3 py-2 font-mono text-sm" id="preview-query"
           name="query"
           type="text"
           value={queryString}
           onChange={(event) => setQueryString(event.target.value)}
           placeholder="lang=de&utm_source=twitter"
-          className="w-full rounded-md border border-[var(--border)] bg-[var(--bg)] px-3 py-2 font-mono text-sm"
-        />
+           />
         <p className="text-xs text-[var(--muted)]">
           Query string only. Nothing is sent anywhere; this runs on the server against your rules.
         </p>

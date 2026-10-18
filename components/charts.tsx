@@ -103,12 +103,10 @@ export function TimeSeriesChart({
     <div className="relative">
       {hasPrevious ? (
         <label className="absolute right-0 top-0 z-10 flex cursor-pointer items-center gap-1.5 text-label-12 text-[color:var(--ds-gray-900)]">
-          <input
-            type="checkbox"
+          <input className="checkbox h-3.5 w-3.5 rounded border-[var(--ds-gray-400)]" type="checkbox"
             checked={showComparison}
             onChange={(e) => setShowComparison(e.target.checked)}
-            className="h-3.5 w-3.5 rounded border-[var(--ds-gray-400)]"
-          />
+             />
           Compare to previous
         </label>
       ) : null}

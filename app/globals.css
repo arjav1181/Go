@@ -887,7 +887,40 @@
   .textarea { min-height: 4.5rem; resize: vertical; }
   input[type='color'].input,
   input[type='color'].select { padding: 0.15rem; height: 2.2rem; cursor: pointer; }
-  input[type='checkbox'] { accent-color: var(--ds-blue-600); width: 1rem; height: 1rem; }
+  input[type='checkbox'],
+  .checkbox {
+    accent-color: var(--ds-blue-600);
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
+  }
+
+  /* Colour and file inputs need different internals from a text input: the
+     native swatch and the "choose file" button both render on their own
+     background, so a plain .input looks broken. */
+  .input-color { padding: 0.15rem; height: 2.4rem; cursor: pointer; }
+  .input-file { padding: 0.35rem; cursor: pointer; }
+  .input-file::file-selector-button {
+    margin-right: 0.6rem;
+    padding: 0.3rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--fg);
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+
+  /* Date and time inputs render a placeholder glyph that inherits the text
+     colour; without this they are invisible in dark mode. */
+  .input::-webkit-calendar-picker-indicator {
+    filter: invert(0.45);
+    cursor: pointer;
+  }
+  @media (prefers-color-scheme: dark) {
+    .input::-webkit-calendar-picker-indicator { filter: invert(0.85); }
+  }
 
   /* --- Tabs --------------------------------------------------------------- */
   .tabs {
@@ -1006,4 +1039,91 @@
   }
   .feature h3 { margin: 0 0 0.3rem; font-size: 0.95rem; font-weight: 600; }
   .feature p { margin: 0; font-size: 0.85rem; line-height: 1.55; color: var(--muted); }
+}
+
+/* --- Theme switcher ----------------------------------------------------- */
+.theme-toggle {
+  display: inline-flex;
+  gap: 1px;
+  padding: 2px;
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.theme-toggle-option {
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 140ms ease, color 140ms ease;
+}
+
+.theme-toggle-option:hover { color: var(--fg); }
+
+.theme-toggle-option.is-active {
+  background: var(--card);
+  color: var(--accent);
+  box-shadow: var(--ds-shadow-border-base);
+}
+
+.theme-toggle-option:focus-visible {
+  outline: 2px solid var(--ds-blue-500);
+  outline-offset: 1px;
+}
+
+/* --- Dark-theme corrections ---------------------------------------------
+   Several surfaces are drawn from tokens that are correct in light mode but
+   read wrong on a dark background: shadows made of pure black disappear,
+   and a pure-white overlay becomes a glare rather than a highlight. */
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) .card,
+  :root:not(.light) .feature {
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.4);
+  }
+}
+
+.dark .card,
+.dark .feature,
+.dark-theme .card,
+.dark-theme .feature {
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.45);
+}
+
+/* The accent button needs its own dark treatment: the shared --ds-shadow-small
+   is a white overlay, which on a dark surface reads as a glow around the
+   button rather than depth. */
+.dark .btn-primary,
+.dark-theme .btn-primary {
+  box-shadow: none;
+}
+.dark .btn-primary:hover:not(:disabled),
+.dark-theme .btn-primary:hover:not(:disabled) {
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.5);
+}
+
+/* Focus rings built from --accent-soft need more presence on dark, where the
+   same 10% tint over a near-black surface is barely distinguishable. */
+.dark :focus-visible,
+.dark-theme :focus-visible {
+  outline-color: var(--ds-blue-500);
+}
+
+/* Recharts injects inline fills for grids and axes; those default to a light
+   grey that is invisible on a dark card. */
+.dark .recharts-cartesian-grid line,
+.dark-theme .recharts-cartesian-grid line {
+  stroke: var(--ds-gray-600);
+}
+.dark .recharts-text,
+.dark-theme .recharts-text {
+  fill: var(--ds-gray-700);
 }

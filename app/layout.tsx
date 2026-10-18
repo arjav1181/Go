@@ -5,6 +5,7 @@ import { GeistMono } from 'geist/font/mono';
 import type { ReactNode } from 'react';
 import { getCurrentUser } from '@/lib/auth/owner';
 import AppShell from '@/components/app-shell';
+import { themeBootstrapScript } from '@/components/theme-toggle';
 import './globals.css';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://go.arjav.is-cool.dev';
@@ -60,7 +61,25 @@ export const viewport: Viewport = {
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const user = await getCurrentUser().catch(() => null);
   return (
-    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+    /**
+     * suppressHydrationWarning: the bootstrap script below mutates the class
+     * and style attributes on <html> before React hydrates, so the server's
+     * markup and the client's first render intentionally differ. React would
+     * otherwise report a mismatch on every load.
+     */
+    <html
+      lang="en"
+      className={`${GeistSans.variable} ${GeistMono.variable}`}
+      suppressHydrationWarning
+    >
+      <head>
+        {/**
+         * Applies the stored theme before first paint. It must be inline and
+         * synchronous: anything deferred loses the race and the page flashes
+         * light on every navigation for a dark-mode visitor.
+         */}
+        <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
+      </head>
       <body>
         <AppShell email={user?.email ?? null}>{children}</AppShell>
       </body>

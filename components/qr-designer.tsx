@@ -252,7 +252,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-/** `<input type=color>` needs #rrggbb; short and alpha forms are not accepted. */
+/** `<input className="input" type=color>` needs #rrggbb; short and alpha forms are not accepted. */
 function normaliseColor(hex: string): string {
   let h = hex.replace(/^#/, '');
   if (h.length === 3) h = h.split('').map((c) => c + c).join('');

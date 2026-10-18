@@ -212,14 +212,12 @@ function BlockFields({
             <input className="input" value={block.label} onChange={(e) => onChange({ label: e.target.value } as Partial<PageBlock>)} />
           </Field>
           <Field label="Description">
-            <input
-              value={block.description ?? ''}
+            <input className="input"               value={block.description ?? ''}
               onChange={(e) => onChange({ description: e.target.value } as Partial<PageBlock>)}
             />
           </Field>
           <Field label="Destination URL">
-            <input
-              value={block.href ?? ''}
+            <input className="input"               value={block.href ?? ''}
               placeholder="https://…"
               onChange={(e) => onChange({ href: e.target.value } as Partial<PageBlock>)}
             />
@@ -259,7 +257,7 @@ function BlockFields({
             <input className="input" value={block.alt} onChange={(e) => onChange({ alt: e.target.value } as Partial<PageBlock>)} />
           </Field>
           <Field label="Optional outbound link">
-            <input value={block.href ?? ''} onChange={(e) => onChange({ href: e.target.value || undefined } as Partial<PageBlock>)} />
+            <input className="input" value={block.href ?? ''} onChange={(e) => onChange({ href: e.target.value || undefined } as Partial<PageBlock>)} />
           </Field>
         </>
       )}
@@ -286,22 +284,19 @@ function BlockFields({
       {block.type === 'contact' && (
         <>
           <Field label="Show email">
-            <input
-              type="checkbox"
+            <input className="checkbox"               type="checkbox"
               checked={block.showEmail}
               onChange={(e) => onChange({ showEmail: e.target.checked } as Partial<PageBlock>)}
             />
           </Field>
           <Field label="Show phone">
-            <input
-              type="checkbox"
+            <input className="checkbox"               type="checkbox"
               checked={block.showPhone}
               onChange={(e) => onChange({ showPhone: e.target.checked } as Partial<PageBlock>)}
             />
           </Field>
           <Field label="Allow vCard download">
-            <input
-              type="checkbox"
+            <input className="checkbox"               type="checkbox"
               checked={block.allowDownload}
               onChange={(e) => onChange({ allowDownload: e.target.checked } as Partial<PageBlock>)}
             />

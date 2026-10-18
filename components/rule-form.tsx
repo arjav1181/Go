@@ -151,13 +151,11 @@ export function RuleForm({
           <label htmlFor="rule-tz" className="text-xs font-medium text-[var(--muted)]">
             Time zone
           </label>
-          <select
-            id="rule-tz"
+          <select className="select w-full rounded-md border border-[var(--border)] bg-[var(--bg)] px-3 py-2 text-sm sm:w-64" id="rule-tz"
             name="time_zone"
             value={timeZone}
             onChange={(event) => setTimeZone(event.target.value)}
-            className="w-full rounded-md border border-[var(--border)] bg-[var(--bg)] px-3 py-2 text-sm sm:w-64"
-          >
+             >
             {COMMON_TIMEZONES.map((zone) => (
               <option key={zone} value={zone}>
                 {zone}

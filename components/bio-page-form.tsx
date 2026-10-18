@@ -110,12 +110,10 @@ export function BioPageForm({ initial }: { initial: Initial }) {
           <label htmlFor="theme" className="block text-label-14 text-primary">
             Layout
           </label>
-          <select
-            id="theme"
+          <select className="select" id="theme"
             name="theme"
             value={theme}
             onChange={(e) => setTheme(e.target.value)}
-            className="input"
           >
             <option value="minimal">Minimal — single column</option>
             <option value="card">Card</option>
@@ -128,21 +126,17 @@ export function BioPageForm({ initial }: { initial: Initial }) {
             Accent colour
           </label>
           <div className="flex items-center gap-2">
-            <input
-              id="accent_color"
+            <input className="input font-mono" id="accent_color"
               name="accent_color"
               value={accent}
               onChange={(e) => setAccent(e.target.value)}
               pattern="#[0-9a-fA-F]{6}"
-              className="input font-mono"
-            />
-            <input
-              type="color"
+               />
+            <input className="input input-color h-9 w-12 cursor-pointer rounded-md border border-[var(--ds-gray-400)] bg-transparent" type="color"
               value={/^#[0-9a-fA-F]{6}$/.test(accent) ? accent : '#0070f3'}
               onChange={(e) => setAccent(e.target.value)}
               aria-label="Pick accent colour"
-              className="h-9 w-12 cursor-pointer rounded-md border border-[var(--ds-gray-400)] bg-transparent"
-            />
+               />
           </div>
         </div>
       </div>
@@ -202,7 +196,7 @@ export function BioPageForm({ initial }: { initial: Initial }) {
               <div
                 key={n}
                 className="rounded-lg border border-[var(--ds-gray-400)] px-3 py-2 text-label-12 text-secondary"
-              >
+           >
                 {n}
               </div>
             ))}
