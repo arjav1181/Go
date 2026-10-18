@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { requireOwner } from '@/lib/auth/owner';
 import { loadCampaigns } from '@/lib/campaigns/listing';
+import { CampaignManager } from '@/components/campaign-manager';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,11 +20,12 @@ export default async function CampaignsPage() {
         </p>
       </header>
 
+      <CampaignManager campaigns={campaigns} />
+
       {campaigns.length === 0 ? (
         <div className="card empty-state">
           <strong>No campaigns yet</strong>
-          Campaigns group links so you can compare channels. Create one to start splitting traffic
-          by source.
+          Create one above to start splitting traffic by source.
         </div>
       ) : (
         <div style={{ display: 'grid', gap: '1.25rem' }}>
