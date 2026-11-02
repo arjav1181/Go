@@ -4,8 +4,13 @@
 
 **Short links on a domain you own, with analytics that forget who clicked.**
 
-[Documentation](./app/docs) · [Privacy](./app/privacy) · [API](./API.md) ·
-[Security](./SECURITY.md) · [Contributing](./CONTRIBUTING.md)
+[![CI](https://github.com/arjav1181/Go/actions/workflows/ci.yml/badge.svg)](https://github.com/arjav1181/Go/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Next.js](https://img.shields.io/badge/Next.js-16-000?logo=next.js&logoColor=white)](package.json)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](package.json)
+
+[API](./API.md) · [Architecture](./ARCHITECTURE.md) · [Security](./SECURITY.md) ·
+[Contributing](./CONTRIBUTING.md) · [Privacy](./PRIVACY.md)
 
 MIT licensed · self-hostable · no telemetry, ever
 
@@ -16,6 +21,27 @@ MIT licensed · self-hostable · no telemetry, ever
 A link shortener that stores no IP addresses, no cookies, no fingerprints and no
 visitor records. Built on Next.js 16, Supabase Auth/Postgres, and the
 [Vercel Geist](https://vercel.com/geist) design system.
+
+
+## Contents
+
+- [Stack](#stack)
+- [Features](#features)
+  - [Links](#links)
+  - [Public](#public)
+  - [Platform](#platform)
+  - [Privacy](#privacy)
+- [Local development](#local-development)
+- [Running it locally with Docker](#running-it-locally-with-docker)
+- [Checks](#checks)
+- [Troubleshooting](#troubleshooting)
+- [Deploying](#deploying-and-binding-goarjavis-cooldev)
+- [API](#api)
+- [Architecture in one paragraph](#architecture-in-one-paragraph)
+- [Operations](#operations)
+- [Known gaps](#known-gaps)
+- [License](#license)
+
 
 ## Stack
 Next.js 16 (App Router), TypeScript, Tailwind CSS, Supabase Auth/Postgres.
@@ -336,3 +362,7 @@ Recorded honestly rather than left to be discovered:
 See `/privacy` in the app. Aggregate clicks only: daily counts, referrer hostname, coarse
 device category. No IP addresses, raw user agents, cookies, fingerprints, or full referrer URLs
 are stored. CSV exports carry the same guarantee and exclude private notes.
+
+## License
+
+MIT. See [LICENSE](./LICENSE).
