@@ -22,7 +22,6 @@ A link shortener that stores no IP addresses, no cookies, no fingerprints and no
 visitor records. Built on Next.js 16, Supabase Auth/Postgres, and the
 [Vercel Geist](https://vercel.com/geist) design system.
 
-
 ## Contents
 
 - [Stack](#stack)
